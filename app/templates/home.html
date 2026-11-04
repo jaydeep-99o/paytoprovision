@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="relative overflow-hidden">
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60rem_30rem_at_70%_-10%,rgba(79,70,229,0.14),transparent),radial-gradient(40rem_20rem_at_10%_10%,rgba(16,185,129,0.10),transparent)]"></div>
+  <div class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
+    <div>
+      <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+        AI deploys · PayPal checkout · Render hosting
+      </span>
+      <h1 class="mt-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+        Turn any GitHub repo into a <span class="text-indigo-600">paid live demo</span>.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg leading-relaxed text-slate-600">
+        Paste a repo and set an hourly price. AI works out how to deploy it. Buyers chat with a checkout agent,
+        pay with PayPal, and get a live link with a countdown. If the build breaks, AI fixes it. If it can't,
+        the buyer is refunded automatically.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#listings" class="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-600/30 hover:bg-indigo-500">Browse live demos</a>
+        <a href="#how" class="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50">How it works</a>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-xl shadow-slate-900/5 ring-1 ring-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div class="flex items-center gap-3">
+          <span class="grid h-9 w-9 place-items-center rounded-lg bg-slate-900 text-white">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          </span>
+          <div>
+            <p class="text-sm font-semibold">acme/todo-api</p>
+            <p class="text-xs text-slate-500">Flask · $3.00 / hour</p>
+          </div>
+        </div>
+        <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">Live · 1:42:10 left</span>
+      </div>
+      <ol class="mt-4 space-y-3 text-sm">
+        <li class="flex gap-3"><span class="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-emerald-500 text-center text-xs leading-5 text-white">✓</span><span><b>Payment captured</b> <span class="text-slate-500">· 2 hours via PayPal</span></span></li>
+        <li class="flex gap-3"><span class="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-rose-500 text-center text-xs leading-5 text-white">!</span><span><b>Build failed</b> <span class="text-slate-500">· app listened on a hardcoded port 5000</span></span></li>
+        <li class="flex gap-3"><span class="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-indigo-500 text-center text-xs leading-5 text-white">AI</span><span><b>AI fixed the config</b> <span class="text-slate-500">· start: <code class="rounded bg-slate-100 px-1">gunicorn app:app --bind 0.0.0.0:$PORT</code></span></span></li>
+        <li class="flex gap-3"><span class="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-emerald-500 text-center text-xs leading-5 text-white">✓</span><span><b>Live</b> <span class="text-indigo-600">ptp-todo-api-7k2.onrender.com</span></span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6">
+  <h2 class="text-2xl font-bold tracking-tight">How it works</h2>
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {% for step in [
+      ("1", "Paste a repo", "The owner pastes a GitHub link and sets a price per hour."),
+      ("2", "AI makes it deployable", "AI reads the repo and works out the runtime, build and start commands, port and env vars."),
+      ("3", "Pay through the agent", "The buyer tells the checkout agent how long they want. It quotes a price and opens a PayPal order."),
+      ("4", "Live link, auto cleanup", "The app goes live on Render with a countdown, then gets deleted. The owner is paid out."),
+    ] %}
+    <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-50 text-sm font-bold text-indigo-600">{{ step[0] }}</span>
+      <h3 class="mt-4 font-semibold">{{ step[1] }}</h3>
+      <p class="mt-1.5 text-sm leading-relaxed text-slate-600">{{ step[2] }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="listings" class="mx-auto max-w-6xl scroll-mt-20 px-4 pb-20 sm:px-6">
+  <div class="flex items-end justify-between">
+    <h2 class="text-2xl font-bold tracking-tight">Live demos you can rent</h2>
+    <p class="text-sm text-slate-500">{{ listings|length }} listed</p>
+  </div>
+
+  {% if listings %}
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for listing in listings %}
+    <a href="/l/{{ listing.slug }}" class="group flex flex-col rounded-2xl bg-white p-5 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate font-semibold group-hover:text-indigo-600">{{ listing.title }}</h3>
+          <p class="truncate text-xs text-slate-500">{{ listing.repo_full_name }}</p>
+        </div>
+        {% if listing.deploy_config.get("runtime") %}
+        <span class="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{{ listing.deploy_config["runtime"] }}</span>
+        {% endif %}
+      </div>
+      <p class="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-slate-600">{{ listing.summary }}</p>
+      <p class="mt-4 text-sm"><span class="text-lg font-bold">${{ "%.2f"|format(listing.price_per_hour) }}</span> <span class="text-slate-500">/ hour</span></p>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="mt-8 rounded-2xl border-2 border-dashed border-slate-200 bg-white px-6 py-14 text-center">
+    <p class="font-semibold">No demos listed yet</p>
+    <p class="mt-1 text-sm text-slate-500">Once an owner lists a repo and it's approved, it shows up here.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

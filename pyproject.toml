@@ -1,0 +1,20 @@
+[project]
+name = "paytoprovision"
+version = "0.1.0"
+description = "Turn any GitHub repo into a paid live demo: AI deploys, PayPal checkout, Render hosting."
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "BLE"]
+
+[tool.ruff.lint.isort]
+# The local alembic/ migrations folder would otherwise make ruff treat the package as first-party.
+known-third-party = ["alembic"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
