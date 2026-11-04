@@ -1,0 +1,47 @@
+# Render Blueprint for the PayToProvision app itself (one free web service).
+# Preview environments are NOT defined here; the app creates them through the Render API.
+# Values marked `sync: false` are asked for once, when you create the Blueprint.
+services:
+  - type: web
+    name: paytoprovision
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    # Migrations run on boot: free instances have no pre-deploy step.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: APP_ENV
+        value: production
+      - key: APP_BASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: INTERNAL_REAP_TOKEN
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: RENDER_API_KEY
+        sync: false
+      - key: RENDER_OWNER_ID
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: NEBIUS_MODEL
+        value: nvidia/nemotron-3-super-120b-a12b
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: ALLOWED_REPOS
+        sync: false
