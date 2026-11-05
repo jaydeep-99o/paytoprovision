@@ -40,9 +40,10 @@ ruff check . && ruff format --check .
 
 ## Deploy to Render
 
-The app itself is one free Render web service described in [`render.yaml`](render.yaml):
-Render Dashboard → **New → Blueprint** → pick this repo → fill in the `sync: false` values
-(`DATABASE_URL`, `RENDER_API_KEY`, …). Migrations run on boot. Health check: `/healthz`.
+The app is one Render web service plus a Render Postgres database, both described in
+[`render.yaml`](render.yaml): Render Dashboard → **New → Blueprint** → pick this repo → fill in the
+`sync: false` values (`RENDER_API_KEY`, `NEBIUS_API_KEY`, …). `DATABASE_URL` is wired from the
+database automatically. Migrations run on boot. Health check: `/healthz`.
 
 ## Project layout
 

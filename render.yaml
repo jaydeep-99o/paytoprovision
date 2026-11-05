@@ -26,7 +26,9 @@ services:
       - key: INTERNAL_REAP_TOKEN
         generateValue: true
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: paytoprovision-db
+          property: connectionString
       - key: RENDER_API_KEY
         sync: false
       - key: RENDER_OWNER_ID
@@ -45,3 +47,14 @@ services:
         sync: false
       - key: ALLOWED_REPOS
         sync: false
+
+databases:
+  # Free Render Postgres expires 30 days after creation; upgrade the plan in place
+  # (data is kept) if the demo must stay up longer for judging.
+  - name: paytoprovision-db
+    plan: free
+    region: oregon
+    databaseName: paytoprovision
+    user: paytoprovision
+    postgresMajorVersion: "17"
+    ipAllowList: [] # private network only; the app connects via the internal URL
