@@ -10,6 +10,7 @@ put in exception messages.
 
 import logging
 import random
+import re
 import time
 from collections.abc import Callable
 from datetime import datetime
@@ -29,6 +30,10 @@ LogType = Literal["build", "app", "request"]
 IN_PROGRESS_STATUSES = {"created", "queued", "build_in_progress", "update_in_progress", "pre_deploy_in_progress"}
 FAILED_STATUSES = {"build_failed", "update_failed", "pre_deploy_failed", "canceled", "deactivated"}
 LIVE_STATUS = "live"
+
+# Render build logs carry terminal colour codes ("\x1b[34;1m==>"); strip them so
+# logs read cleanly in the UI and in LLM prompts.
+_ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 
 _IDEMPOTENT_METHODS = {"GET", "DELETE", "PUT", "PATCH"}
 _MAX_BACKOFF_SECONDS = 30.0
@@ -413,7 +418,8 @@ class RenderClient:
         while len(lines) < max_lines:
             data = self._request("GET", "/logs", params=params) or {}
             for entry in data.get("logs") or []:
-                lines.append(LogLine(timestamp=entry["timestamp"], message=entry.get("message", ""), type=log_type))
+                message = _ANSI_ESCAPE.sub("", entry.get("message", ""))
+                lines.append(LogLine(timestamp=entry["timestamp"], message=message, type=log_type))
             if not data.get("hasMore") or not data.get("logs"):
                 break
             params["startTime"] = data["nextStartTime"]

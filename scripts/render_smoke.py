@@ -33,6 +33,8 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=900, help="seconds to wait for the deploy")
     parser.add_argument("--keep", action="store_true", help="don't delete the service at the end")
     args = parser.parse_args()
+    # Render logs contain emoji; the default Windows console encoding can't print them.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     settings = get_settings()
     name = f"{settings.preview_name_prefix}smoke-{secrets.token_hex(3)}"

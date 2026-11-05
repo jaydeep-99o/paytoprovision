@@ -153,7 +153,11 @@ def test_get_logs_pages_backwards_and_returns_oldest_first():
             "nextEndTime": "2026-11-05T10:00:01Z",
             "logs": [
                 {"id": "3", "message": "ModuleNotFoundError: flask", "timestamp": "2026-11-05T10:00:03Z"},
-                {"id": "2", "message": "Running build command", "timestamp": "2026-11-05T10:00:02Z"},
+                {
+                    "id": "2",
+                    "message": "\x1b[34;1m==>\x1b[0;22m Running build command",
+                    "timestamp": "2026-11-05T10:00:02Z",
+                },
             ],
         },
         {
@@ -170,7 +174,11 @@ def test_get_logs_pages_backwards_and_returns_oldest_first():
     client, _ = make_client(handler)
     lines = client.get_logs("srv-123", log_type="build")
 
-    assert [line.message for line in lines] == ["Cloning repo", "Running build command", "ModuleNotFoundError: flask"]
+    assert [line.message for line in lines] == [
+        "Cloning repo",
+        "==> Running build command",  # ANSI colour codes stripped
+        "ModuleNotFoundError: flask",
+    ]
     first = requests[0].url.params
     assert first["resource"] == "srv-123" and first["type"] == "build" and first["ownerId"] == "tea-owner"
     assert requests[1].url.params["endTime"] == "2026-11-05T10:00:01Z"

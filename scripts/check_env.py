@@ -105,6 +105,7 @@ CHECKS: list[tuple[str, Callable[[Settings], tuple[str, str]]]] = [
 
 
 def main() -> int:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # workspace names may contain non-ASCII
     settings = get_settings()
     failed = False
     for label, check in CHECKS:
