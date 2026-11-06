@@ -1,7 +1,12 @@
 # Demo repos
 
 Four tiny apps used to demo PayToProvision. Each folder is pushed as its **own public GitHub repo**
-and added to `ALLOWED_REPOS`. They exercise every path of the product:
+and added to `ALLOWED_REPOS`. They exercise every path of the product.
+
+Published: [ptp-demo-flask](https://github.com/jaydeep-99o/ptp-demo-flask) ·
+[ptp-demo-express](https://github.com/jaydeep-99o/ptp-demo-express) ·
+[ptp-demo-heal-python](https://github.com/jaydeep-99o/ptp-demo-heal-python) ·
+[ptp-demo-never-builds](https://github.com/jaydeep-99o/ptp-demo-never-builds)
 
 | Folder → repo | What it is | What should happen |
 |---|---|---|
