@@ -1,36 +1,62 @@
-"""FastAPI entry point: pages and health check."""
+"""FastAPI entry point: app wiring, owner cookie, error pages, health check."""
 
 import logging
-from pathlib import Path
+import re
+import secrets
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from sqlalchemy import select, text
+from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import get_settings
 from app.db import DbSession
-from app.models import Listing, ListingStatus
+from app.routes import owner, pages
+from app.routes.deps import OWNER_COOKIE
+from app.templating import templates
 
 settings = get_settings()
 logging.basicConfig(level=settings.log_level, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("app")
 
-BASE_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=BASE_DIR / "templates")
-
 app = FastAPI(title="PayToProvision", docs_url=None if settings.is_production else "/docs", redoc_url=None)
+app.include_router(pages.router)
+app.include_router(owner.router)
+
+_OWNER_KEY = re.compile(r"^[A-Za-z0-9_-]{32,64}$")
 
 
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request, db: DbSession):
-    listings = db.scalars(
-        select(Listing)
-        .where(Listing.status == ListingStatus.PUBLISHED, Listing.approved.is_(True))
-        .order_by(Listing.created_at.desc())
-    ).all()
-    return templates.TemplateResponse(request, "home.html", {"listings": listings})
+@app.middleware("http")
+async def owner_cookie(request: Request, call_next):
+    """Give every browser a random owner key. There are no accounts: listings belong to
+    the browser that created them."""
+    key = request.cookies.get(OWNER_COOKIE, "")
+    is_new = not _OWNER_KEY.match(key)
+    if is_new:
+        key = secrets.token_urlsafe(32)
+    request.state.owner_key = key
+    response = await call_next(request)
+    if is_new:
+        response.set_cookie(
+            OWNER_COOKIE,
+            key,
+            max_age=365 * 24 * 3600,
+            httponly=True,
+            samesite="lax",
+            secure=settings.is_production,
+        )
+    return response
+
+
+@app.exception_handler(StarletteHTTPException)
+async def html_errors(request: Request, exc: StarletteHTTPException):
+    if "text/html" not in request.headers.get("accept", ""):
+        return await http_exception_handler(request, exc)
+    return templates.TemplateResponse(
+        request, "error.html", {"status": exc.status_code, "detail": exc.detail}, status_code=exc.status_code
+    )
 
 
 @app.get("/healthz")

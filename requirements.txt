@@ -7,3 +7,4 @@ psycopg[binary]==3.3.8
 pydantic==2.14.2
 pydantic-settings==2.16.2
 httpx==0.28.1
+python-multipart==0.0.33

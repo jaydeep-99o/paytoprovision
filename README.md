@@ -7,7 +7,7 @@ when time is up. The owner is paid out via PayPal Payouts.
 
 > Built for the PayPal AI Hackathon. PayPal is used in **sandbox mode only**; no real money moves.
 
-_Status: Phase 1 (scaffold). The full README, architecture diagram and judge instructions come in Phase 8._
+_Status: Phase 2 (AI repo analyzer + listings). The full README, architecture diagram and judge instructions come in Phase 8._
 
 ## Stack
 
@@ -49,13 +49,28 @@ database automatically. Migrations run on boot. Health check: `/healthz`.
 
 ```
 app/
-  main.py            FastAPI app (pages + /healthz)
+  main.py            FastAPI app wiring, owner cookie, error pages, /healthz
   config.py          settings from env (secrets as SecretStr)
   db.py              engine, session, UTC datetime + JSONB column types
   models.py          Listing, PreviewSession (+ state machine), TimelineEvent, WebhookEvent, Payout
   render_client.py   typed Render API client with retries/backoff
-  templates/         Jinja2 + Tailwind pages
+  github_client.py   repo metadata, file tree and key files via the GitHub API
+  ai/llm.py          Nebius Token Factory chat client + strict-JSON helper (validate, retry once)
+  ai/analyzer.py     AI repo analyzer: deploy plan + deterministic $PORT guardrails
+  routes/            pages (home, listing) and owner flow (analyze, review, publish)
+  templates/         Jinja2 + Tailwind + HTMX pages
 alembic/             migrations
+demo-repos/          the 4 demo apps (each pushed as its own public repo)
 scripts/             check_env.py, render_smoke.py
-tests/               pytest
+tests/               pytest (GitHub, LLM and Render mocked with httpx.MockTransport)
 ```
+
+### How the AI analyzer works
+
+1. Fetches the repo's README, manifests (`package.json`, `requirements.txt`, `Procfile`, `Dockerfile`, …)
+   and up to 3 entry files through the GitHub API, plus the file tree.
+2. Asks the Nemotron model on Nebius for a strict-JSON deploy plan (runtime, build/start commands,
+   port notes, env vars, health path, confidence, summary). Repo content is treated as untrusted data.
+3. Validates it with Pydantic; on invalid JSON the error is fed back and the model retries once.
+4. Applies deterministic guardrails: Python servers are made to bind `$PORT`, `PORT` is dropped from
+   env vars, missing build commands get sane defaults. Each change is shown to the owner.

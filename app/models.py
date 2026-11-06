@@ -89,8 +89,19 @@ class Listing(TimestampMixin, Base):
     deploy_config: Mapped[dict[str, Any]] = mapped_column(JSONType, default=dict)
     analysis: Mapped[dict[str, Any] | None] = mapped_column(JSONType)  # raw AI output
     confidence: Mapped[float | None] = mapped_column(Float)
+    # Random per-browser key (cookie) identifying the owner; there are no user accounts.
+    owner_key: Mapped[str | None] = mapped_column(String(64), index=True)
 
     sessions: Mapped[list["PreviewSession"]] = relationship(back_populates="listing")
+
+    @property
+    def stack(self) -> str:
+        return ((self.analysis or {}).get("result") or {}).get("stack") or self.deploy_config.get("runtime", "")
+
+    @property
+    def is_live(self) -> bool:
+        """Visible to buyers: published and allowlisted/approved."""
+        return self.status == ListingStatus.PUBLISHED and self.approved
 
 
 class PreviewSession(TimestampMixin, Base):

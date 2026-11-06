@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ status }} · PayToProvision{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-xl px-4 py-24 text-center sm:px-6">
+  <p class="text-sm font-semibold text-indigo-600">{{ status }}</p>
+  <h1 class="mt-2 text-3xl font-bold tracking-tight">
+    {% if status == 404 %}We couldn't find that page{% elif status == 403 %}You can't open this{% else %}Something went wrong{% endif %}
+  </h1>
+  <p class="mt-3 text-slate-600">{{ detail }}</p>
+  <a href="/" class="mt-8 inline-block rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500">Back to home</a>
+</section>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}List your repo · PayToProvision{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+  <span class="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-100">For repo owners</span>
+  <h1 class="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">List your repo</h1>
+  <p class="mt-3 text-slate-600">
+    Paste a public GitHub repo. AI reads it and works out how to deploy it: runtime, build and start commands,
+    port and env vars. You check the plan, set an hourly price and publish.
+  </p>
+
+  <form class="mt-8 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
+        hx-post="/owner/analyze" hx-target="#analyze-result" hx-swap="innerHTML"
+        hx-indicator="#analyze-form-state" hx-disabled-elt="find button, find input">
+    <label for="repo_url" class="text-sm font-semibold">GitHub repo URL</label>
+    <div class="mt-2 flex flex-col gap-3 sm:flex-row">
+      <input id="repo_url" name="repo_url" type="url" required autocomplete="off" autofocus
+             placeholder="https://github.com/owner/repo"
+             class="min-w-0 flex-1 rounded-xl border-0 bg-slate-50 px-4 py-3 text-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+      <button type="submit" class="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60">
+        Analyze with AI
+      </button>
+    </div>
+
+    <div id="analyze-form-state">
+      <div class="htmx-indicator mt-5 items-center gap-3 rounded-xl bg-indigo-50 p-4 text-sm text-indigo-800 ring-1 ring-indigo-100">
+        <svg class="h-5 w-5 shrink-0 animate-spin text-indigo-600" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" class="opacity-25"/><path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <span id="analyze-step">Fetching the repo from GitHub…</span>
+      </div>
+    </div>
+    <div id="analyze-result" class="mt-4 empty:mt-0"></div>
+    <p class="mt-4 text-xs text-slate-500">Public repos only. Analysis usually takes 5–30 seconds.</p>
+  </form>
+
+  {% if my_listings %}
+  <div class="mt-12">
+    <h2 class="text-lg font-bold tracking-tight">Your listings</h2>
+    <ul class="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
+      {% for l in my_listings %}
+      <li>
+        <a href="/owner/listings/{{ l.id }}" class="flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50">
+          <div class="min-w-0">
+            <p class="truncate font-medium">{{ l.title }}</p>
+            <p class="truncate text-xs text-slate-500">{{ l.repo_full_name }} · {{ l.price_per_hour|money }}/h</p>
+          </div>
+          {% if l.is_live %}
+          <span class="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">Live</span>
+          {% elif l.status == "published" %}
+          <span class="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">Awaiting approval</span>
+          {% else %}
+          <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">Draft</span>
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</section>
+
+<script>
+  // Cycle through progress messages while the (single) analyze request runs.
+  (function () {
+    const steps = ["Fetching the repo from GitHub…", "Reading README, manifests and entry files…",
+                   "AI is working out the runtime and commands…", "Checking port binding and env vars…",
+                   "Almost there…"];
+    let timer = null;
+    document.body.addEventListener("htmx:beforeRequest", () => {
+      let i = 0;
+      const el = document.getElementById("analyze-step");
+      el.textContent = steps[0];
+      timer = setInterval(() => { i = Math.min(i + 1, steps.length - 1); el.textContent = steps[i]; }, 3500);
+    });
+    document.body.addEventListener("htmx:afterRequest", () => clearInterval(timer));
+  })();
+</script>
+{% endblock %}

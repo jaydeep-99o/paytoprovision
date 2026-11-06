@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }} · PayToProvision{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+  {% if just_published %}
+    {% if listing.is_live %}
+    <div class="mb-6 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 ring-1 ring-emerald-200">Published! Your listing is live and buyers can rent it.</div>
+    {% else %}
+    <div class="mb-6 rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 ring-1 ring-amber-200">Published. An admin needs to approve this repo before buyers can see it.</div>
+    {% endif %}
+  {% elif is_owner and not listing.is_live %}
+  <div class="mb-6 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700">Only you can see this page: the listing is {{ "awaiting approval" if listing.status == "published" else "a draft" }}.</div>
+  {% endif %}
+
+  <div class="grid gap-8 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <div class="flex flex-wrap items-center gap-2">
+        {% if listing.stack %}<span class="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white">{{ listing.stack }}</span>{% endif %}
+        <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-100">AI-prepared deploy</span>
+      </div>
+      <h1 class="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">{{ listing.title }}</h1>
+      <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        {{ listing.repo_full_name }}
+      </a>
+      {% if listing.owner_name %}<p class="mt-1 text-sm text-slate-500">Listed by {{ listing.owner_name }}</p>{% endif %}
+
+      <div class="mt-6 rounded-2xl bg-white p-6 ring-1 ring-slate-200">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">About this app</h2>
+        <p class="mt-2 leading-relaxed text-slate-700">{{ listing.summary }}</p>
+      </div>
+
+      <div class="mt-4 rounded-2xl bg-white p-6 ring-1 ring-slate-200">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">How it gets deployed</h2>
+        <ol class="mt-4 space-y-3 text-sm">
+          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">1</span><span>You pay with PayPal (sandbox).</span></li>
+          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">2</span>
+            <span>A fresh copy is deployed on Render ({{ listing.deploy_config.get("runtime") }}):
+              <code class="mt-1 block rounded-lg bg-slate-900 px-3 py-2 font-mono text-xs leading-relaxed text-slate-100">$ {{ listing.deploy_config.get("build_command") or "docker build" }}<br>$ {{ listing.deploy_config.get("start_command") or "docker run" }}</code>
+            </span></li>
+          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">3</span><span>If the build fails, AI reads the logs, fixes the config and retries. If it still can't, you're refunded automatically.</span></li>
+          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">4</span><span>You get a private live link with a countdown. When time's up, it's deleted.</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <aside>
+      <div class="rounded-2xl bg-white p-6 shadow-xl shadow-slate-900/5 ring-1 ring-slate-200 lg:sticky lg:top-24">
+        <p><span class="text-3xl font-extrabold">{{ listing.price_per_hour|money }}</span> <span class="text-slate-500">/ hour</span></p>
+        <fieldset class="mt-5">
+          <legend class="text-sm font-medium">How long?</legend>
+          <div class="mt-2 grid grid-cols-{{ hours_options|length }} gap-2">
+            {% for h in hours_options %}
+            <label class="cursor-pointer">
+              <input type="radio" name="hours" value="{{ h }}" class="peer sr-only" {% if loop.first %}checked{% endif %}>
+              <span class="block rounded-xl px-3 py-2.5 text-center text-sm font-medium ring-1 ring-slate-200 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:ring-indigo-600">{{ h }} hour{{ "s" if h > 1 }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        <div class="mt-5 flex items-baseline justify-between border-t border-slate-100 pt-4 text-sm">
+          <span class="text-slate-500">Total</span>
+          <span id="total" class="text-lg font-bold" data-price="{{ listing.price_per_hour }}">{{ listing.price_per_hour|money }}</span>
+        </div>
+        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-500">PayPal checkout opens soon</button>
+        <p class="mt-3 text-center text-xs text-slate-500">Sandbox payments only. No real money moves.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const total = document.getElementById("total");
+    const price = parseFloat(total.dataset.price);
+    document.querySelectorAll('input[name="hours"]').forEach((el) =>
+      el.addEventListener("change", () => { total.textContent = "$" + (price * parseInt(el.value, 10)).toFixed(2); }));
+  })();
+</script>
+{% endblock %}
