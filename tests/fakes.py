@@ -6,6 +6,8 @@ import httpx
 
 from app.ai.llm import LLMClient
 from app.github_client import GitHubClient
+from app.payments.paypal import PayPalClient
+from app.render_client import RenderClient
 
 REPO_FILES = {
     "README.md": "# Demo\nA tiny Flask app. Run `python app.py` on port 5000.",
@@ -92,3 +94,118 @@ def llm_handler(replies: list[str], seen: list | None = None):
 def fake_llm(replies: list[str] | None = None, seen: list | None = None) -> LLMClient:
     replies = replies or [json.dumps(GOOD_ANALYSIS)]
     return LLMClient("nb_test", model="test-model", transport=httpx.MockTransport(llm_handler(replies, seen)))
+
+
+class FakePayPal:
+    """Stateful PayPal sandbox stand-in. `calls` records (method, path, PayPal-Request-Id)."""
+
+    def __init__(self):
+        self.calls: list[tuple[str, str, str | None]] = []
+        self.bodies: list[dict] = []
+        self.orders = 0
+        self.capture_error: str | None = None  # e.g. "INSTRUMENT_DECLINED"
+        self.capture_status = "COMPLETED"
+        self.refund_fails = False
+        self.verify_ok = True
+
+    def captured(self, order_id: str) -> dict:
+        return {
+            "id": order_id,
+            "status": "COMPLETED",
+            "payer": {"email_address": "buyer@example.com"},
+            "purchase_units": [{"payments": {"captures": [{"id": f"CAP-{order_id}", "status": self.capture_status}]}}],
+        }
+
+    def handler(self, request: httpx.Request) -> httpx.Response:
+        path, method = request.url.path, request.method
+        self.calls.append((method, path, request.headers.get("PayPal-Request-Id")))
+        if request.content and path != "/v1/oauth2/token":
+            self.bodies.append(json.loads(request.content))
+        if path == "/v1/oauth2/token":
+            return httpx.Response(200, json={"access_token": "tok", "expires_in": 32400})
+        if path == "/v2/checkout/orders" and method == "POST":
+            self.orders += 1
+            oid = f"ORDER-{self.orders}"
+            return httpx.Response(
+                201,
+                json={
+                    "id": oid,
+                    "status": "CREATED",
+                    "links": [{"rel": "approve", "href": f"https://sandbox.paypal.com/checkoutnow?token={oid}"}],
+                },
+            )
+        if path.endswith("/capture"):
+            oid = path.split("/")[-2]
+            if self.capture_error:
+                return httpx.Response(
+                    422,
+                    json={"name": "UNPROCESSABLE_ENTITY", "details": [{"issue": self.capture_error}], "debug_id": "d1"},
+                )
+            return httpx.Response(201, json=self.captured(oid))
+        if path.startswith("/v2/checkout/orders/") and method == "GET":
+            return httpx.Response(200, json=self.captured(path.rsplit("/", 1)[-1]))
+        if path.endswith("/refund"):
+            if self.refund_fails:
+                return httpx.Response(500, json={"name": "INTERNAL_SERVER_ERROR"})
+            return httpx.Response(201, json={"id": "REF-1", "status": "COMPLETED"})
+        if path == "/v1/notifications/verify-webhook-signature":
+            return httpx.Response(200, json={"verification_status": "SUCCESS" if self.verify_ok else "FAILURE"})
+        return httpx.Response(404, json={"name": "RESOURCE_NOT_FOUND"})
+
+    def client(self) -> PayPalClient:
+        return PayPalClient("cid", "secret", transport=httpx.MockTransport(self.handler))
+
+
+class FakeRender:
+    """Render API stand-in for provisioning and reaping."""
+
+    def __init__(self, deploy_statuses=("build_in_progress", "update_in_progress", "live")):
+        self.deploy_statuses = list(deploy_statuses)
+        self.created: list[dict] = []
+        self.deleted: list[str] = []
+        self.services: list[dict] = []  # returned by list_services
+
+    def handler(self, request: httpx.Request) -> httpx.Response:
+        path, method = request.url.path, request.method
+        if path == "/v1/services" and method == "POST":
+            body = json.loads(request.content)
+            self.created.append(body)
+            svc = {
+                "id": f"srv-{len(self.created)}",
+                "name": body["name"],
+                "type": "web_service",
+                "serviceDetails": {"url": f"https://{body['name']}.onrender.com"},
+            }
+            return httpx.Response(201, json={"service": svc, "deployId": "dep-1"})
+        if path == "/v1/services" and method == "GET":
+            return httpx.Response(200, json=[{"service": s, "cursor": "c"} for s in self.services])
+        if "/deploys/" in path:
+            status = self.deploy_statuses.pop(0) if len(self.deploy_statuses) > 1 else self.deploy_statuses[0]
+            return httpx.Response(200, json={"id": "dep-1", "status": status, "createdAt": "2026-11-06T10:00:00Z"})
+        if path.endswith("/deploys") and method == "GET":
+            return httpx.Response(
+                200, json=[{"deploy": {"id": "dep-1", "status": self.deploy_statuses[0]}, "cursor": "c"}]
+            )
+        if path == "/v1/logs":
+            return httpx.Response(
+                200,
+                json={
+                    "hasMore": False,
+                    "logs": [
+                        {
+                            "id": "1",
+                            "message": "ModuleNotFoundError: No module named 'requests'",
+                            "timestamp": "2026-11-06T10:01:00Z",
+                        }
+                    ],
+                },
+            )
+        if method == "DELETE":
+            self.deleted.append(path.rsplit("/", 1)[-1])
+            return httpx.Response(204)
+        return httpx.Response(404, json={"message": "not found"})
+
+    def client(self) -> RenderClient:
+        return RenderClient(
+            "rnd_test", owner_id="tea-x", transport=httpx.MockTransport(self.handler), sleep=lambda s: None
+        )

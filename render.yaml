@@ -39,6 +39,10 @@ services:
         sync: false
       - key: NEBIUS_MODEL
         value: nvidia/nemotron-3-super-120b-a12b
+      - key: PREVIEW_NAME_PREFIX
+        value: ptp-
+      - key: PREVIEW_PLAN
+        value: free
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET

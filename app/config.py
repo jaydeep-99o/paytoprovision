@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     render_region: str = "oregon"
     render_api_base_url: str = "https://api.render.com/v1"
     preview_name_prefix: str = "ptp-"
+    preview_plan: str = "free"  # Render instance type for previews: free | starter | ...
 
     # GitHub (repo analysis; a token lifts the 60 req/h anonymous limit)
     github_token: SecretStr = SecretStr("")

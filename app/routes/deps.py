@@ -6,6 +6,7 @@ from fastapi import Request
 
 from app.ai.llm import LLMClient, LLMError
 from app.github_client import GitHubClient
+from app.payments.paypal import PayPalClient, PayPalError
 
 OWNER_COOKIE = "ptp_owner"
 
@@ -21,6 +22,29 @@ def get_github() -> Iterator[GitHubClient]:
         yield client
     finally:
         client.close()
+
+
+def get_paypal() -> Iterator[PayPalClient | None]:
+    try:
+        client = PayPalClient.from_settings()
+    except PayPalError:  # credentials not configured
+        yield None
+        return
+    try:
+        yield client
+    finally:
+        client.close()
+
+
+def submit_provisioning_job(session_id) -> bool:
+    """Indirection so tests can stub out background provisioning."""
+    from app.provisioner import submit_provisioning
+
+    return submit_provisioning(session_id)
+
+
+def get_provision_submitter():
+    return submit_provisioning_job
 
 
 def get_llm() -> Iterator[LLMClient | None]:

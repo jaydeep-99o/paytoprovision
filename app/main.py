@@ -11,9 +11,10 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app import reaper
 from app.config import get_settings
 from app.db import DbSession
-from app.routes import owner, pages
+from app.routes import checkout, internal, owner, pages, webhooks
 from app.routes.deps import OWNER_COOKIE
 from app.templating import templates
 
@@ -24,6 +25,9 @@ log = logging.getLogger("app")
 app = FastAPI(title="PayToProvision", docs_url=None if settings.is_production else "/docs", redoc_url=None)
 app.include_router(pages.router)
 app.include_router(owner.router)
+app.include_router(checkout.router)
+app.include_router(webhooks.router)
+app.include_router(internal.router)
 
 _OWNER_KEY = re.compile(r"^[A-Za-z0-9_-]{32,64}$")
 
@@ -47,6 +51,9 @@ async def owner_cookie(request: Request, call_next):
             samesite="lax",
             secure=settings.is_production,
         )
+    # Piggyback the (throttled) reaper on real traffic; health checks and the cron endpoint don't count.
+    if not request.url.path.startswith(("/healthz", "/internal", "/webhooks")):
+        reaper.maybe_reap_in_background()
     return response
 
 

@@ -1,0 +1,115 @@
+<div id="session-status"
+     {% if not terminal %}hx-get="/s/{{ s.id }}/status" hx-trigger="every {{ '30s' if status == 'live' else '3s' }}" hx-swap="outerHTML"{% endif %}>
+  <div class="grid gap-6 lg:grid-cols-3">
+    <div class="space-y-6 lg:col-span-2">
+
+      {# ---------------------------------------------------------------- status card #}
+      {% if status == "live" %}
+      <div class="rounded-2xl bg-white p-6 shadow-xl shadow-emerald-900/5 ring-1 ring-emerald-200">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
+            <span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span></span>
+            Live
+          </span>
+          <span class="font-mono text-lg font-bold tabular-nums" data-expires="{{ s.expires_at.isoformat() }}">…</span>
+        </div>
+        <a href="{{ s.live_url }}" target="_blank" rel="noopener" class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-500">
+          Open your live demo <span aria-hidden="true">↗</span>
+        </a>
+        <div class="mt-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
+          <code class="min-w-0 flex-1 truncate text-sm text-slate-700">{{ s.live_url }}</code>
+          <button type="button" data-copy="{{ s.live_url }}" class="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-50">Copy</button>
+        </div>
+        <p class="mt-3 text-xs text-slate-500">Runs on a free Render instance: after 15 idle minutes the next visit takes about a minute to wake it up. That's normal, not broken.</p>
+      </div>
+
+      {% elif status == "failed_refunded" %}
+      <div class="rounded-2xl bg-white p-6 ring-1 ring-rose-200">
+        <p class="text-sm font-semibold text-rose-600">Couldn't start this app</p>
+        <h2 class="mt-1 text-xl font-bold">You've been refunded {{ s.amount|money(s.currency) }}</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ s.failure_reason or "The deploy failed." }} The full amount went back to your PayPal account automatically; it can take a few minutes to show up.</p>
+        <a href="/" class="mt-4 inline-block text-sm font-semibold text-indigo-600 hover:text-indigo-500">Browse other demos →</a>
+      </div>
+
+      {% elif status == "expired" %}
+      <div class="rounded-2xl bg-white p-6 ring-1 ring-slate-200">
+        <p class="text-sm font-semibold text-slate-500">Session ended</p>
+        <h2 class="mt-1 text-xl font-bold">{{ "This checkout was never completed." if not s.paid_at else "Time's up. The environment has been deleted." }}</h2>
+        <a href="/l/{{ listing.slug }}" class="mt-4 inline-block rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">Rent it again</a>
+      </div>
+
+      {% else %}
+      <div class="rounded-2xl bg-white p-6 ring-1 ring-slate-200">
+        <div class="flex items-center gap-3">
+          <svg class="h-6 w-6 shrink-0 animate-spin text-indigo-600" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" class="opacity-20"/><path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <div>
+            <h2 class="text-lg font-bold">
+              {% if status == "pending_payment" %}Waiting for PayPal to confirm your payment…
+              {% elif status == "healing" %}AI is fixing the deploy…
+              {% else %}Starting your environment…{% endif %}
+            </h2>
+            <p class="text-sm text-slate-500">{{ "This usually takes a few seconds." if status == "pending_payment" else "Usually 1–3 minutes. You can leave this page open; it updates on its own." }}</p>
+          </div>
+        </div>
+        <ol class="mt-6 grid grid-cols-5 gap-2">
+          {% for label in steps %}
+          <li>
+            <div class="h-1.5 rounded-full {% if loop.index0 < step %}bg-emerald-500{% elif loop.index0 == step %}animate-pulse bg-indigo-500{% else %}bg-slate-200{% endif %}"></div>
+            <p class="mt-1.5 text-[11px] font-medium sm:text-xs {% if loop.index0 <= step %}text-slate-700{% else %}text-slate-400{% endif %}">{{ label }}</p>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+      {% endif %}
+
+      {# ---------------------------------------------------------------- timeline #}
+      <div class="rounded-2xl bg-white p-6 ring-1 ring-slate-200">
+        <div class="flex items-baseline justify-between">
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Timeline</h3>
+          <span class="text-xs text-slate-400">UTC</span>
+        </div>
+        <ol class="mt-4 space-y-4">
+          {% for e in s.events %}
+          {% set tone = {"live": "bg-emerald-500", "paid": "bg-emerald-500", "refunded": "bg-rose-500", "deploy_failed": "bg-rose-500",
+                         "payment_failed": "bg-rose-500", "ai_fix": "bg-indigo-500", "expired": "bg-slate-400"}.get(e.kind, "bg-slate-300") %}
+          <li class="flex gap-3">
+            <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {{ tone }}"></span>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-baseline justify-between gap-x-3">
+                <p class="text-sm text-slate-800">{{ e.message }}</p>
+                <time class="font-mono text-xs text-slate-400">{{ e.created_at.strftime("%H:%M:%S") }}</time>
+              </div>
+              {% if e.detail and e.detail.get("logs") %}
+              <details class="mt-2">
+                <summary class="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-800">Show build log</summary>
+                <pre class="mt-2 max-h-64 overflow-auto rounded-lg bg-slate-900 p-3 text-[11px] leading-relaxed text-slate-100">{% for line in e.detail["logs"] %}{{ line }}
+{% endfor %}</pre>
+              </details>
+              {% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+
+    {# ---------------------------------------------------------------- receipt #}
+    <aside>
+      <div class="rounded-2xl bg-white p-5 text-sm ring-1 ring-slate-200">
+        <h3 class="font-semibold">{{ listing.title }}</h3>
+        <p class="mt-0.5 text-xs text-slate-500">{{ listing.repo_full_name }}</p>
+        <dl class="mt-4 space-y-2">
+          <div class="flex justify-between"><dt class="text-slate-500">Duration</dt><dd>{{ s.hours }} hour{{ "s" if s.hours > 1 }}</dd></div>
+          <div class="flex justify-between"><dt class="text-slate-500">Paid</dt><dd class="font-semibold">{{ s.amount|money(s.currency) }}</dd></div>
+          {% if s.live_at %}<div class="flex justify-between"><dt class="text-slate-500">Went live</dt><dd>{{ s.live_at.strftime("%H:%M") }} UTC</dd></div>{% endif %}
+          {% if s.expires_at %}<div class="flex justify-between"><dt class="text-slate-500">Ends</dt><dd>{{ s.expires_at.strftime("%H:%M") }} UTC</dd></div>{% endif %}
+        </dl>
+        <dl class="mt-4 space-y-1.5 border-t border-slate-100 pt-4 text-xs">
+          {% if s.paypal_order_id %}<div class="flex justify-between gap-2"><dt class="text-slate-500">PayPal order</dt><dd class="truncate font-mono">{{ s.paypal_order_id }}</dd></div>{% endif %}
+          {% if s.paypal_capture_id %}<div class="flex justify-between gap-2"><dt class="text-slate-500">Capture</dt><dd class="truncate font-mono">{{ s.paypal_capture_id }}</dd></div>{% endif %}
+          {% if s.paypal_refund_id %}<div class="flex justify-between gap-2"><dt class="text-slate-500">Refund</dt><dd class="truncate font-mono">{{ s.paypal_refund_id }}</dd></div>{% endif %}
+        </dl>
+      </div>
+    </aside>
+  </div>
+</div>

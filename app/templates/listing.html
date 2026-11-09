@@ -10,6 +10,8 @@
     {% endif %}
   {% elif is_owner and not listing.is_live %}
   <div class="mb-6 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700">Only you can see this page: the listing is {{ "awaiting approval" if listing.status == "published" else "a draft" }}.</div>
+  {% elif cancelled %}
+  <div class="mb-6 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700">Checkout cancelled. You have not been charged.</div>
   {% endif %}
 
   <div class="grid gap-8 lg:grid-cols-3">
@@ -62,8 +64,15 @@
           <span class="text-slate-500">Total</span>
           <span id="total" class="text-lg font-bold" data-price="{{ listing.price_per_hour }}">{{ listing.price_per_hour|money }}</span>
         </div>
-        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-500">PayPal checkout opens soon</button>
-        <p class="mt-3 text-center text-xs text-slate-500">Sandbox payments only. No real money moves.</p>
+        {% if listing.is_live and paypal_client_id %}
+        <div id="checkout-msg" class="mt-5 hidden rounded-xl px-3.5 py-2.5 text-sm" role="status"></div>
+        <div id="paypal-buttons" class="mt-5 min-h-[50px]"></div>
+        {% elif not listing.is_live %}
+        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-500">Checkout opens once the listing is live</button>
+        {% else %}
+        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-500">Payments aren't configured</button>
+        {% endif %}
+        <p class="mt-3 text-center text-xs text-slate-500">PayPal sandbox: use a sandbox buyer account. No real money moves.</p>
       </div>
     </aside>
   </div>
@@ -77,4 +86,44 @@
       el.addEventListener("change", () => { total.textContent = "$" + (price * parseInt(el.value, 10)).toFixed(2); }));
   })();
 </script>
+
+{% if listing.is_live and paypal_client_id %}
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency={{ listing.currency }}&intent=capture&components=buttons"></script>
+<script>
+  (function () {
+    const msg = document.getElementById("checkout-msg");
+    const show = (text, kind) => {
+      const styles = { error: "bg-rose-50 text-rose-800 ring-1 ring-rose-200", info: "bg-indigo-50 text-indigo-800 ring-1 ring-indigo-100" };
+      msg.className = "mt-5 rounded-xl px-3.5 py-2.5 text-sm " + styles[kind];
+      msg.textContent = text;
+    };
+    const hours = () => parseInt(document.querySelector('input[name="hours"]:checked').value, 10);
+
+    if (!window.paypal) { show("Couldn't load PayPal. Check your connection or ad blocker and reload.", "error"); return; }
+    paypal.Buttons({
+      style: { layout: "vertical", shape: "rect", label: "pay", height: 45 },
+      createOrder: async () => {
+        msg.classList.add("hidden");
+        const resp = await fetch("/api/checkout/{{ listing.slug }}/orders", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hours: hours() }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) { show(data.error || "Couldn't start the checkout.", "error"); throw new Error(data.error); }
+        return data.id;
+      },
+      onApprove: async (data, actions) => {
+        show("Payment approved. Confirming with PayPal…", "info");
+        const resp = await fetch(`/api/checkout/orders/${data.orderID}/capture`, { method: "POST" });
+        const result = await resp.json();
+        if (result.issue === "INSTRUMENT_DECLINED") return actions.restart();
+        if (!resp.ok) { show(result.error || "PayPal couldn't complete the payment.", "error"); return; }
+        show("Paid! Starting your environment…", "info");
+        window.location.href = result.redirect;
+      },
+      onCancel: () => show("Checkout cancelled. You have not been charged.", "info"),
+      onError: () => show("PayPal ran into a problem. Please try again.", "error"),
+    }).render("#paypal-buttons");
+  })();
+</script>
+{% endif %}
 {% endblock %}

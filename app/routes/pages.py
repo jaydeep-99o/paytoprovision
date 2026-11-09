@@ -23,7 +23,9 @@ def home(request: Request, db: DbSession):
 
 
 @router.get("/l/{slug}")
-def listing_page(request: Request, slug: str, db: DbSession, owner_key: OwnerKey, published: bool = False):
+def listing_page(
+    request: Request, slug: str, db: DbSession, owner_key: OwnerKey, published: bool = False, cancelled: bool = False
+):
     listing = db.scalar(select(Listing).where(Listing.slug == slug))
     is_owner = listing is not None and listing.owner_key == owner_key
     if listing is None or not (listing.is_live or is_owner):
@@ -36,6 +38,8 @@ def listing_page(request: Request, slug: str, db: DbSession, owner_key: OwnerKey
             "listing": listing,
             "is_owner": is_owner,
             "just_published": published,
+            "cancelled": cancelled,
+            "paypal_client_id": settings.paypal_client_id,
             "hours_options": list(range(1, settings.max_session_hours + 1)),
             "result": (listing.analysis or {}).get("result") or {},
         },
