@@ -24,7 +24,7 @@ PAGE = """<!doctype html>
   <div class="days">{% for d in days %}
     <div class="day"><div class="muted">{{ d.date }}</div><div class="t">{{ d.max }}°</div>
     <div class="muted">low {{ d.min }}° · rain {{ d.rain }} mm</div></div>{% endfor %}</div>
-  <p class="muted">Source: {{ source }}</p>
+  <p class="muted">Source: {{ data_source }}</p>
 </main></body></html>"""
 
 
@@ -34,7 +34,7 @@ def index():
     if city not in CITIES:
         city = "London"
     days, source = get_forecast(city)
-    return render_template_string(PAGE, cities=CITIES, city=city, days=days, source=source)
+    return render_template_string(PAGE, cities=CITIES, city=city, days=days, data_source=source)
 
 
 if __name__ == "__main__":
