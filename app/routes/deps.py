@@ -36,6 +36,13 @@ def get_paypal() -> Iterator[PayPalClient | None]:
         client.close()
 
 
+def get_toolkit():
+    """PayPal Agent Toolkit API for the checkout agent (None if unavailable)."""
+    from app.payments.toolkit import make_toolkit_api
+
+    return make_toolkit_api()
+
+
 def submit_provisioning_job(session_id) -> bool:
     """Indirection so tests can stub out background provisioning."""
     from app.provisioner import submit_provisioning

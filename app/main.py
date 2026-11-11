@@ -14,7 +14,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app import reaper
 from app.config import get_settings
 from app.db import DbSession
-from app.routes import checkout, internal, owner, pages, webhooks
+from app.routes import agent, checkout, internal, owner, pages, webhooks
 from app.routes.deps import OWNER_COOKIE
 from app.templating import templates
 
@@ -26,6 +26,7 @@ app = FastAPI(title="PayToProvision", docs_url=None if settings.is_production el
 app.include_router(pages.router)
 app.include_router(owner.router)
 app.include_router(checkout.router)
+app.include_router(agent.router)
 app.include_router(webhooks.router)
 app.include_router(internal.router)
 

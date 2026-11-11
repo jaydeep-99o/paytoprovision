@@ -51,17 +51,15 @@ def _check_capacity(db: Session) -> None:
         )
 
 
-def start_checkout(
-    db: Session, paypal: PayPalClient, listing: Listing, hours: int, *, redirect: bool = False
-) -> PreviewSession:
-    """Create a pending session and its PayPal order (redirect=True for an approval link)."""
+def begin_session(db: Session, listing: Listing, hours: int) -> PreviewSession:
+    """Validate a purchase and add a pending session (not committed). Shared by the PayPal
+    buttons and the checkout agent, so both enforce the same price, hours and capacity rules."""
     settings = get_settings()
     if not listing.is_live:
         raise CheckoutError("This listing isn't available.", status_code=404)
     if not 1 <= hours <= settings.max_session_hours:
         raise CheckoutError(f"Choose between 1 and {settings.max_session_hours} hours.")
     _check_capacity(db)
-
     session = PreviewSession(
         listing=listing,
         hours=hours,
@@ -70,9 +68,25 @@ def start_checkout(
         status=SessionStatus.PENDING_PAYMENT,
     )
     db.add(session)
-    db.flush()  # assigns session.id for the order's custom_id
+    db.flush()  # assigns session.id
+    return session
 
-    base = settings.app_base_url.rstrip("/")
+
+def attach_order(db: Session, session: PreviewSession, order_id: str, *, via: str = "") -> None:
+    session.paypal_order_id = order_id
+    hours = session.hours
+    session.add_event(
+        "checkout", f"PayPal order created{via}: {hours} hour{'s' if hours > 1 else ''} for ${session.amount}"
+    )
+    db.commit()
+
+
+def start_checkout(
+    db: Session, paypal: PayPalClient, listing: Listing, hours: int, *, redirect: bool = False
+) -> PreviewSession:
+    """Create a pending session and its PayPal order (redirect=True for an approval link)."""
+    session = begin_session(db, listing, hours)
+    base = get_settings().app_base_url.rstrip("/")
     try:
         order = paypal.create_order(
             amount=session.amount,
@@ -89,9 +103,7 @@ def start_checkout(
         log.error("create order failed: %s", exc)
         raise CheckoutError("PayPal couldn't start the checkout. Please try again.", status_code=502) from exc
 
-    session.paypal_order_id = order["id"]
-    session.add_event("checkout", f"PayPal order created: {hours} hour{'s' if hours > 1 else ''} for ${session.amount}")
-    db.commit()
+    attach_order(db, session, order["id"])
     return session
 
 

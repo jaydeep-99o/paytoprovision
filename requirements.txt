@@ -8,3 +8,6 @@ pydantic==2.14.2
 pydantic-settings==2.16.2
 httpx==0.28.1
 python-multipart==0.0.33
+requests==2.34.2  # used by paypal-agent-toolkit's core
+# paypal-agent-toolkit==1.11.0 is installed separately with --no-deps (see render.yaml):
+# its framework adapters pull in CrewAI/LangChain, which we don't use.
