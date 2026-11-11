@@ -220,6 +220,34 @@ class PayPalClient:
             request_id=f"refund-{capture_id}",
         )
 
+    # ---------------------------------------------------------------- payouts
+
+    def create_payout(
+        self, *, sender_batch_id: str, receiver_email: str, amount: Decimal, currency: str, note: str
+    ) -> dict[str, Any]:
+        """Send money to one PayPal account (the repo owner). `sender_batch_id` must be unique;
+        PayPal rejects a reused one, so a retry can never pay twice."""
+        body = {
+            "sender_batch_header": {
+                "sender_batch_id": sender_batch_id,
+                "email_subject": "You earned money from a PayToProvision demo",
+                "email_message": note[:255],
+            },
+            "items": [
+                {
+                    "recipient_type": "EMAIL",
+                    "receiver": receiver_email,
+                    "amount": {"value": f"{amount:.2f}", "currency": currency},
+                    "note": note[:255],
+                    "sender_item_id": sender_batch_id,
+                }
+            ],
+        }
+        return self._request("POST", "/v1/payments/payouts", json=body, request_id=sender_batch_id)
+
+    def get_payout(self, payout_batch_id: str) -> dict[str, Any]:
+        return self._request("GET", f"/v1/payments/payouts/{payout_batch_id}")
+
     # ---------------------------------------------------------------- webhooks
 
     def verify_webhook(self, headers: Mapping[str, str], event: dict[str, Any], webhook_id: str) -> bool:

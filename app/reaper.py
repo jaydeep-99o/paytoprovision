@@ -9,6 +9,7 @@ Each run:
   3. stuck PAID/DEPLOYING sessions  -> resume provisioning (the worker died)
   4. failed sessions not yet refunded -> retry the refund
   5. orphan `ptp-` services with no active session, older than 30 min -> delete
+  6. sessions that ran and ended -> pay the owner (PayPal Payouts); poll pending payouts
 """
 
 import logging
@@ -21,11 +22,11 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
-from app import provisioner
+from app import payouts, provisioner
 from app.config import get_settings
 from app.db import SessionLocal
-from app.models import ACTIVE_SESSION_STATUSES, PreviewSession, SessionStatus
-from app.payments.paypal import PayPalClient
+from app.models import ACTIVE_SESSION_STATUSES, Payout, PreviewSession, SessionStatus
+from app.payments.paypal import PayPalClient, PayPalError
 from app.render_client import RenderAPIError, RenderClient
 
 log = logging.getLogger(__name__)
@@ -79,7 +80,15 @@ def reap(
 
 
 def _reap(session_factory, render_factory, paypal_factory, resume, now) -> dict[str, Any]:
-    summary = {"expired": 0, "abandoned": 0, "resumed": 0, "refund_retries": 0, "orphans_deleted": 0, "errors": 0}
+    summary = {
+        "expired": 0,
+        "abandoned": 0,
+        "resumed": 0,
+        "refund_retries": 0,
+        "orphans_deleted": 0,
+        "payouts": 0,
+        "errors": 0,
+    }
     with session_factory() as db, render_factory() as render:
         # 1. expire live sessions
         for s in db.scalars(
@@ -152,6 +161,32 @@ def _reap(session_factory, render_factory, paypal_factory, resume, now) -> dict[
                 except RenderAPIError as exc:
                     log.warning("reaper: could not delete orphan %s: %s", svc.id, exc)
                     summary["errors"] += 1
+
+        # 6. owner payouts for sessions that ran and ended, and status of pending ones
+        unpaid = db.scalars(
+            select(PreviewSession)
+            .outerjoin(Payout, Payout.session_id == PreviewSession.id)
+            .where(
+                PreviewSession.status == SessionStatus.EXPIRED,
+                PreviewSession.live_at.is_not(None),
+                PreviewSession.paypal_refund_id.is_(None),
+                Payout.paypal_batch_id.is_(None),
+            )
+        ).all()
+        pending = db.scalars(
+            select(Payout).where(Payout.paypal_batch_id.is_not(None), Payout.status.in_(payouts.PENDING))
+        ).all()
+        if unpaid or pending:
+            try:
+                with paypal_factory() as paypal:
+                    for s in unpaid:
+                        payout = payouts.payout_session(db, s, paypal)
+                        summary["payouts"] += bool(payout and payout.paypal_batch_id)
+                    for payout in pending:
+                        payouts.refresh_payout(db, payout, paypal)
+            except PayPalError as exc:
+                log.warning("reaper: payouts skipped: %s", exc)
+                summary["errors"] += 1
     if any(summary.values()):
         log.info("reaper run: %s", summary)
     return summary

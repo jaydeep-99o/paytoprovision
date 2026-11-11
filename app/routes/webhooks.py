@@ -20,6 +20,7 @@ from app.checkout import CheckoutError, complete_payment, mark_paid
 from app.config import get_settings
 from app.db import DbSession
 from app.models import PreviewSession, SessionStatus, WebhookEvent
+from app.payouts import apply_payout_event
 from app.routes.checkout import PayPal, Submitter
 
 log = logging.getLogger(__name__)
@@ -80,6 +81,9 @@ def handle_event(db: Session, paypal, submit, event: dict[str, Any]) -> str:
             session.add_event("refund_confirmed", "PayPal confirmed the refund.")
             db.commit()
         return "refund noted"
+
+    if kind.startswith(("PAYMENT.PAYOUTSBATCH.", "PAYMENT.PAYOUTS-ITEM.")):
+        return apply_payout_event(db, kind, resource)
 
     return "ignored"
 

@@ -17,7 +17,8 @@ from app.ai.llm import LLMClient, LLMError
 from app.config import get_settings
 from app.db import DbSession
 from app.github_client import GitHubClient, GitHubError, parse_repo_url
-from app.models import Listing, ListingStatus
+from app.models import Listing, ListingStatus, Payout, PreviewSession
+from app.payouts import split
 from app.ratelimit import RateLimiter
 from app.routes.deps import get_github, get_llm, get_owner_key
 from app.templating import templates
@@ -52,6 +53,55 @@ def _owned_listing(db: Session, listing_id: uuid.UUID, owner_key: str) -> Listin
     if listing.owner_key != owner_key:
         raise HTTPException(403, "This listing belongs to someone else (or was created in another browser).")
     return listing
+
+
+@router.get("/dashboard")
+def dashboard(request: Request, db: DbSession, owner_key: OwnerKey):
+    """Sessions, earnings and payouts across this browser's listings."""
+    listings = db.scalars(
+        select(Listing).where(Listing.owner_key == owner_key).order_by(Listing.created_at.desc())
+    ).all()
+    ids = [listing.id for listing in listings]
+    sessions = (
+        db.scalars(
+            select(PreviewSession)
+            .where(PreviewSession.listing_id.in_(ids), PreviewSession.paid_at.is_not(None))
+            .order_by(PreviewSession.created_at.desc())
+        ).all()
+        if ids
+        else []
+    )
+    payouts = {p.session_id: p for p in db.scalars(select(Payout).where(Payout.listing_id.in_(ids)))} if ids else {}
+    paid_out = sum((p.net_amount for p in payouts.values() if p.status == "SUCCESS"), Decimal("0"))
+    pending = sum((p.net_amount for p in payouts.values() if p.status != "SUCCESS" and not p.error), Decimal("0"))
+    upcoming = sum(
+        (split(s.amount)[1] for s in sessions if s.status in ("paid", "deploying", "healing", "live")), Decimal("0")
+    )
+    per_listing = {
+        listing.id: {
+            "sold": sum(1 for s in sessions if s.listing_id == listing.id and not s.paypal_refund_id),
+            "earned": sum((p.net_amount for p in payouts.values() if p.listing_id == listing.id), Decimal("0")),
+        }
+        for listing in listings
+    }
+    return templates.TemplateResponse(
+        request,
+        "owner_dashboard.html",
+        {
+            "listings": listings,
+            "sessions": sessions[:30],
+            "payouts": payouts,
+            "per_listing": per_listing,
+            "kpis": {
+                "paid_out": paid_out,
+                "pending": pending + upcoming,
+                "sold": sum(1 for s in sessions if not s.paypal_refund_id),
+                "refunded": sum(1 for s in sessions if s.paypal_refund_id),
+                "live": sum(1 for s in sessions if s.status == "live"),
+            },
+            "fee_percent": get_settings().platform_fee_percent,
+        },
+    )
 
 
 @router.get("/new")

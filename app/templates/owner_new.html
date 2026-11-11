@@ -34,7 +34,10 @@
 
   {% if my_listings %}
   <div class="mt-12">
-    <h2 class="text-lg font-bold tracking-tight">Your listings</h2>
+    <div class="flex items-baseline justify-between">
+      <h2 class="text-lg font-bold tracking-tight">Your listings</h2>
+      <a href="/owner/dashboard" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Earnings & payouts →</a>
+    </div>
     <ul class="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
       {% for l in my_listings %}
       <li>

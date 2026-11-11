@@ -148,6 +148,16 @@ class FakePayPal:
             if self.refund_fails:
                 return httpx.Response(500, json={"name": "INTERNAL_SERVER_ERROR"})
             return httpx.Response(201, json={"id": "REF-1", "status": "COMPLETED"})
+        if path == "/v1/payments/payouts" and method == "POST":
+            return httpx.Response(201, json={"batch_header": {"payout_batch_id": "BATCH-1", "batch_status": "PENDING"}})
+        if path.startswith("/v1/payments/payouts/") and method == "GET":
+            return httpx.Response(
+                200,
+                json={
+                    "batch_header": {"payout_batch_id": "BATCH-1", "batch_status": "SUCCESS"},
+                    "items": [{"payout_item_id": "ITEM-1", "transaction_status": "SUCCESS"}],
+                },
+            )
         if path == "/v1/notifications/verify-webhook-signature":
             return httpx.Response(200, json={"verification_status": "SUCCESS" if self.verify_ok else "FAILURE"})
         return httpx.Response(404, json={"name": "RESOURCE_NOT_FOUND"})
