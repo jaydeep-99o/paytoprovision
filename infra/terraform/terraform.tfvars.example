@@ -1,0 +1,10 @@
+# Copy to terraform.tfvars (git-ignored) and fill in. Also export RENDER_API_KEY and
+# RENDER_OWNER_ID for the provider itself.
+render_api_key       = "rnd_..."
+render_owner_id      = "tea-..."
+github_token         = "github_pat_..."
+nebius_api_key       = "..."
+paypal_client_id     = "..."
+paypal_client_secret = "..."
+paypal_webhook_id    = ""
+allowed_repos        = "you/ptp-demo-flask,you/ptp-demo-express"
