@@ -18,6 +18,14 @@ from tests.fakes import FakePayPal, FakeRender, fake_github, fake_llm
 reaper.AUTO_ENABLED = False
 
 
+@pytest.fixture(autouse=True)
+def no_real_ai(monkeypatch):
+    """Tests that don't pass an llm_factory get "AI not configured", never the real Nebius API."""
+    from app import provisioner
+
+    monkeypatch.setattr(provisioner, "_llm_or_none", lambda: None)
+
+
 @pytest.fixture
 def db_session_factory(tmp_path):
     engine = make_engine(f"sqlite:///{tmp_path / 'test.db'}")

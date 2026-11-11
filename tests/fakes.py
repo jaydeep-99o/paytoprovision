@@ -164,9 +164,26 @@ class FakeRender:
         self.created: list[dict] = []
         self.deleted: list[str] = []
         self.services: list[dict] = []  # returned by list_services
+        self.patches: list[dict] = []  # PATCH /services/{id} bodies (healer config changes)
+        self.env_puts: list[list] = []  # PUT /services/{id}/env-vars bodies
+        self.triggered = 0  # POST /services/{id}/deploys
+        self.cancelled: list[str] = []
+        self.now = 0.0  # fake clock: every poll's sleep moves it 30s forward
 
     def handler(self, request: httpx.Request) -> httpx.Response:
         path, method = request.url.path, request.method
+        if method == "POST" and path.endswith("/cancel"):
+            self.cancelled.append(path.split("/")[-2])
+            return httpx.Response(200, json={"id": path.split("/")[-2], "status": "canceled"})
+        if method == "PATCH" and path.startswith("/v1/services/"):
+            self.patches.append(json.loads(request.content))
+            return httpx.Response(200, json={"id": path.rsplit("/", 1)[-1], "name": "svc", "type": "web_service"})
+        if method == "PUT" and path.endswith("/env-vars"):
+            self.env_puts.append(json.loads(request.content))
+            return httpx.Response(200, json=[])
+        if method == "POST" and path.endswith("/deploys"):
+            self.triggered += 1
+            return httpx.Response(201, json={"id": f"dep-{self.triggered + 1}", "status": "created"})
         if path == "/v1/services" and method == "POST":
             body = json.loads(request.content)
             self.created.append(body)
@@ -206,6 +223,13 @@ class FakeRender:
         return httpx.Response(404, json={"message": "not found"})
 
     def client(self) -> RenderClient:
+        def sleep(_seconds: float) -> None:
+            self.now += 30
+
         return RenderClient(
-            "rnd_test", owner_id="tea-x", transport=httpx.MockTransport(self.handler), sleep=lambda s: None
+            "rnd_test",
+            owner_id="tea-x",
+            transport=httpx.MockTransport(self.handler),
+            sleep=sleep,
+            clock=lambda: self.now,
         )

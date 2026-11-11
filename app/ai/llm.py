@@ -90,6 +90,12 @@ class LLMClient:
     def close(self) -> None:
         self._http.close()
 
+    def __enter__(self) -> "LLMClient":
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
     def chat(
         self,
         messages: list[dict[str, Any]],

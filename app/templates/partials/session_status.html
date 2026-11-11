@@ -48,9 +48,19 @@
               {% elif status == "healing" %}AI is fixing the deploy…
               {% else %}Starting your environment…{% endif %}
             </h2>
-            <p class="text-sm text-slate-500">{{ "This usually takes a few seconds." if status == "pending_payment" else "Usually 1–3 minutes. You can leave this page open; it updates on its own." }}</p>
+            <p class="text-sm text-slate-500">
+              {% if status == "pending_payment" %}This usually takes a few seconds.
+              {% elif status == "healing" %}The last deploy failed. AI is reading the logs and fixing the config. If it can't, you're refunded automatically.
+              {% else %}Usually 1–3 minutes. You can leave this page open; it updates on its own.{% endif %}
+            </p>
           </div>
         </div>
+        {% if (s.deploy_attempts or 0) > 1 or status == "healing" %}
+        <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100">
+          <span class="grid h-4 w-4 place-items-center rounded bg-indigo-600 text-[8px] font-bold text-white">AI</span>
+          Self-healing: attempt {{ s.deploy_attempts }} of {{ max_attempts }}
+        </p>
+        {% endif %}
         <ol class="mt-6 grid grid-cols-5 gap-2">
           {% for label in steps %}
           <li>
@@ -70,15 +80,31 @@
         </div>
         <ol class="mt-4 space-y-4">
           {% for e in s.events %}
+          {% set is_ai = e.kind.startswith("ai_") %}
           {% set tone = {"live": "bg-emerald-500", "paid": "bg-emerald-500", "refunded": "bg-rose-500", "deploy_failed": "bg-rose-500",
-                         "payment_failed": "bg-rose-500", "ai_fix": "bg-indigo-500", "expired": "bg-slate-400"}.get(e.kind, "bg-slate-300") %}
+                         "payment_failed": "bg-rose-500", "expired": "bg-slate-400", "ai_gave_up": "bg-amber-500"}.get(e.kind, "bg-indigo-500" if is_ai else "bg-slate-300") %}
           <li class="flex gap-3">
+            {% if is_ai %}
+            <span class="grid h-5 w-5 shrink-0 place-items-center rounded-md text-[9px] font-bold text-white {{ tone }}">AI</span>
+            {% else %}
             <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {{ tone }}"></span>
+            {% endif %}
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-baseline justify-between gap-x-3">
-                <p class="text-sm text-slate-800">{{ e.message }}</p>
+                <p class="text-sm {{ 'font-medium text-indigo-900' if e.kind in ('ai_fix', 'ai_diagnosis') else 'text-slate-800' }}">{{ e.message }}</p>
                 <time class="font-mono text-xs text-slate-400">{{ e.created_at.strftime("%H:%M:%S") }}</time>
               </div>
+              {% if e.kind == "ai_fix" and e.detail and e.detail.get("changes") %}
+              <ul class="mt-2 space-y-1.5 rounded-lg bg-indigo-50/70 p-2.5 ring-1 ring-indigo-100">
+                {% for c in e.detail["changes"] %}
+                <li class="text-xs">
+                  <span class="font-semibold text-indigo-900">{{ c.field }}</span>
+                  {% if c.old %}<code class="block truncate text-rose-700 line-through decoration-rose-300">{{ c.old }}</code>{% endif %}
+                  <code class="block break-all text-emerald-800">{{ c.new }}</code>
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
               {% if e.detail and e.detail.get("logs") %}
               <details class="mt-2">
                 <summary class="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-800">Show build log</summary>

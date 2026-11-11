@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 
 from app.checkout import CheckoutError, complete_payment, start_checkout
+from app.config import get_settings
 from app.db import DbSession
 from app.models import Listing, PreviewSession, SessionStatus
 from app.payments.paypal import PayPalClient
@@ -115,6 +116,7 @@ def _session_context(session: PreviewSession, error: str | None = None) -> dict[
         "error": error,
         "steps": PROGRESS_STEPS,
         "step": _progress_step(session),
+        "max_attempts": 1 + get_settings().max_heal_attempts,
     }
 
 

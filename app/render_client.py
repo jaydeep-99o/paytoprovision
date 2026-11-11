@@ -33,7 +33,7 @@ LIVE_STATUS = "live"
 
 # Render build logs carry terminal colour codes ("\x1b[34;1m==>"); strip them so
 # logs read cleanly in the UI and in LLM prompts.
-_ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+_ANSI_ESCAPE = re.compile(r"\x1b(?:\[[0-9;]*[A-Za-z]|\([A-Za-z0-9])")  # CSI codes and charset switches
 
 _IDEMPOTENT_METHODS = {"GET", "DELETE", "PUT", "PATCH"}
 _MAX_BACKOFF_SECONDS = 30.0
@@ -114,6 +114,7 @@ class RenderClient:
         max_retries: int = 4,
         transport: httpx.BaseTransport | None = None,
         sleep: Callable[[float], None] = time.sleep,
+        clock: Callable[[], float] = time.monotonic,
     ):
         if not api_key:
             raise ValueError("RENDER_API_KEY is not set")
@@ -127,6 +128,7 @@ class RenderClient:
         self.region = region
         self.max_retries = max_retries
         self._sleep = sleep
+        self._clock = clock
 
     @classmethod
     def from_settings(cls, settings: Settings | None = None, **kwargs: Any) -> "RenderClient":
@@ -369,11 +371,17 @@ class RenderClient:
         timeout: float = 900,
         poll_interval: float = 10,
         on_status: Callable[[RenderDeploy], None] | None = None,
+        max_starting_seconds: float | None = None,
     ) -> RenderDeploy:
         """Poll until the deploy reaches a terminal status (live or failed). Calls `on_status`
-        whenever the status changes. Raises TimeoutError if it is still running at `timeout`."""
-        deadline = time.monotonic() + timeout
+        whenever the status changes. Raises TimeoutError if it is still running at `timeout`.
+
+        With `max_starting_seconds`, returns early (still `update_in_progress`, i.e. not
+        terminal) once the app has been starting that long: Render keeps retrying a failing
+        health check for many minutes, so callers can give up sooner."""
+        deadline = self._clock() + timeout
         last_status = None
+        starting_since: float | None = None
         while True:
             deploy = self.get_deploy(service_id, deploy_id)
             if deploy.status != last_status:
@@ -382,9 +390,18 @@ class RenderClient:
                     on_status(deploy)
             if deploy.is_terminal:
                 return deploy
-            if time.monotonic() >= deadline:
+            now = self._clock()
+            if deploy.status == "update_in_progress":
+                if starting_since is None:
+                    starting_since = now
+                if max_starting_seconds is not None and now - starting_since >= max_starting_seconds:
+                    return deploy
+            if now >= deadline:
                 raise TimeoutError(f"deploy {deploy_id} still {deploy.status} after {timeout:.0f}s")
             self._sleep(poll_interval)
+
+    def cancel_deploy(self, service_id: str, deploy_id: str) -> RenderDeploy:
+        return RenderDeploy.from_api(self._request("POST", f"/services/{service_id}/deploys/{deploy_id}/cancel"))
 
     # ---------------------------------------------------------------- logs
 

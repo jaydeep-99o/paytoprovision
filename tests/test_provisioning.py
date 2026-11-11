@@ -77,7 +77,8 @@ def test_refund_failure_is_retried_by_the_reaper(client, live_listing, db_sessio
     s = paid_session(db_session_factory, live_listing)
     provision(db_session_factory, render_fake, paypal_fake, s.id)
     with db_session_factory() as db:
-        assert db.get(PreviewSession, s.id).status == "deploying"  # money not returned yet: keep trying
+        stuck = db.get(PreviewSession, s.id)
+        assert stuck.status == "healing" and stuck.failure_reason  # money not returned yet: keep trying
 
     paypal_fake.refund_fails = False
     later = datetime.now(UTC) + timedelta(minutes=10)

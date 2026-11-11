@@ -90,6 +90,19 @@
         </div>
         {% endif %}
 
+        {% if analysis.get("healed_config") %}
+        {% set healed = analysis["healed_config"] %}
+        <div class="mt-5 rounded-xl bg-indigo-50 p-3 ring-1 ring-indigo-100">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-indigo-800">AI fixed a live deploy</h3>
+          <p class="mt-1 text-sm text-indigo-900">A buyer's deploy failed and the AI fixed it with these changes. Copy them into the deploy plan so the next buyer goes live first time:</p>
+          <ul class="mt-2 space-y-1.5">
+            {% for c in healed.get("changes", []) %}
+            <li class="text-xs"><span class="font-semibold text-indigo-900">{{ c.field }}:</span> <code class="break-all text-emerald-800">{{ c.new }}</code></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
         {% if analysis.get("files_read") %}
         <div class="mt-5">
           <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Files it read</h3>

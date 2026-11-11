@@ -139,6 +139,26 @@ def test_wait_for_deploy_reports_each_status_change():
     assert sleeps == [5, 5, 5]
 
 
+def test_wait_returns_early_when_app_is_stuck_starting():
+    now = [0.0]
+
+    def sleep(seconds):
+        now[0] += seconds
+
+    client = RenderClient(
+        API_KEY,
+        owner_id="tea-owner",
+        transport=httpx.MockTransport(
+            lambda r: httpx.Response(200, json={"id": "dep-1", "status": "update_in_progress"})
+        ),
+        sleep=sleep,
+        clock=lambda: now[0],
+    )
+    deploy = client.wait_for_deploy("srv-1", "dep-1", poll_interval=10, max_starting_seconds=60)
+    assert deploy.status == "update_in_progress" and not deploy.is_terminal
+    assert now[0] == 60
+
+
 def test_failed_deploy_is_terminal():
     client, _ = make_client(lambda r: httpx.Response(200, json={"id": "dep-1", "status": "build_failed"}))
     deploy = client.wait_for_deploy("srv-123", "dep-1")
@@ -155,7 +175,7 @@ def test_get_logs_pages_backwards_and_returns_oldest_first():
                 {"id": "3", "message": "ModuleNotFoundError: flask", "timestamp": "2026-11-05T10:00:03Z"},
                 {
                     "id": "2",
-                    "message": "\x1b[34;1m==>\x1b[0;22m Running build command",
+                    "message": "\x1b[34;1m==>\x1b(B\x1b[0;22m Running build command",
                     "timestamp": "2026-11-05T10:00:02Z",
                 },
             ],
