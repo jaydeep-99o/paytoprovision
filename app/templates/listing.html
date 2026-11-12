@@ -3,27 +3,27 @@
 {% block content %}
 <section class="band">
   <div class="mx-auto max-w-6xl px-4 pb-14 pt-8 sm:px-6">
-    <a href="/#listings" class="text-sm text-stone-400 hover:text-white">← All demos</a>
+    <a href="/#listings" class="text-sm text-mist-400 hover:text-white">← All demos</a>
     <div class="mt-6 flex flex-col justify-between gap-8 md:flex-row md:items-end">
       <div class="min-w-0">
         <div class="flex flex-wrap gap-2">
-          {% if listing.stack %}<span class="glass rounded-full px-2.5 py-1 text-xs font-medium text-stone-200">{{ listing.stack }}</span>{% endif %}
+          {% if listing.stack %}<span class="glass rounded-full px-2.5 py-1 text-xs font-medium text-mist-200">{{ listing.stack }}</span>{% endif %}
           <span class="rounded-full bg-brand-500/15 px-2.5 py-1 text-xs font-medium text-brand-200 ring-1 ring-brand-400/30">AI-prepared deploy</span>
-          <span class="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300 ring-1 ring-emerald-400/25">Self-healing · auto refund</span>
+          <span class="rounded-full bg-sage-500/10 px-2.5 py-1 text-xs font-medium text-sage-300 ring-1 ring-sage-400/25">Self-healing · auto refund</span>
         </div>
         <h1 class="rise mt-5 text-5xl font-semibold tracking-[-0.045em] sm:text-6xl" style="--d: 60ms">{{ listing.title }}</h1>
-        <p class="rise mt-4 max-w-2xl text-lg leading-relaxed text-stone-400" style="--d: 160ms">{{ listing.summary }}</p>
-        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-stone-400">
+        <p class="rise mt-4 max-w-2xl text-lg leading-relaxed text-brand-100/80" style="--d: 160ms">{{ listing.summary }}</p>
+        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-brand-100/70">
           <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-mono hover:text-white">
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
             {{ listing.repo_full_name }}
           </a>
-          {% if listing.owner_name %}<span>Listed by <span class="text-stone-200">{{ listing.owner_name }}</span></span>{% endif %}
+          {% if listing.owner_name %}<span>Listed by <span class="text-mist-200">{{ listing.owner_name }}</span></span>{% endif %}
         </div>
       </div>
       <div class="glass rise shrink-0 rounded-2xl px-6 py-4 md:text-right" style="--d: 240ms">
         <p class="text-3xl font-bold tracking-tight">{{ listing.price_per_hour|money }}</p>
-        <p class="text-xs text-stone-400">per hour · up to {{ hours_options|length }}h</p>
+        <p class="text-xs text-mist-400">per hour · up to {{ hours_options|length }}h</p>
       </div>
     </div>
   </div>
@@ -32,100 +32,100 @@
 <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
   {% if just_published %}
     {% if listing.is_live %}
-    <div id="celebrate" class="rise mb-8 overflow-hidden rounded-3xl border-2 border-emerald-200 bg-white shadow-xl shadow-emerald-900/5">
-      <div class="h-3 bg-gradient-to-r from-emerald-400 to-emerald-500"></div>
+    <div id="celebrate" class="rise mb-8 overflow-hidden rounded-3xl border-2 border-sage-200 bg-white shadow-xl shadow-sage-900/5">
+      <div class="h-3 bg-gradient-to-r from-sage-400 to-sage-500"></div>
       <div class="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
-        <span class="grid h-16 w-16 shrink-0 place-items-center rounded-[1.4rem] bg-emerald-500 text-3xl text-white shadow-lg shadow-emerald-500/30">✓</span>
+        <span class="grid h-16 w-16 shrink-0 place-items-center rounded-[1.4rem] bg-sage-500 text-3xl text-white shadow-lg shadow-sage-500/30">✓</span>
         <div class="min-w-0 flex-1">
-          <p class="font-mono text-xs font-semibold uppercase tracking-wider text-emerald-600">Step 3 of 3 · complete</p>
+          <p class="font-mono text-xs font-semibold uppercase tracking-wider text-sage-600">Step 3 of 3 · complete</p>
           <p class="mt-1 text-2xl font-semibold tracking-tight">You're live! Buyers can rent {{ listing.title }} now.</p>
           <div class="mt-3 flex items-center gap-2 rounded-xl bg-paper px-3 py-2 ring-1 ring-black/5">
-            <code id="share-url" class="min-w-0 flex-1 truncate font-mono text-sm text-stone-600"></code>
+            <code id="share-url" class="min-w-0 flex-1 truncate font-mono text-sm text-mist-600"></code>
             <button type="button" id="share-copy" class="chunky rounded-lg border-brand-800 bg-brand-600 px-3 py-1 text-xs font-bold uppercase text-white">Copy link</button>
           </div>
         </div>
-        <a href="/owner/dashboard" class="chunky shrink-0 rounded-2xl border-black/20 bg-white px-5 py-3 text-center text-sm font-bold uppercase tracking-wider text-stone-700 ring-2 ring-black/10">Dashboard</a>
+        <a href="/owner/dashboard" class="chunky shrink-0 rounded-2xl border-black/20 bg-white px-5 py-3 text-center text-sm font-bold uppercase tracking-wider text-mist-700 ring-2 ring-black/10">Dashboard</a>
       </div>
     </div>
     {% else %}
     <div class="mb-6 rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 ring-1 ring-amber-200">Published. An admin needs to approve this repo before buyers can see it.</div>
     {% endif %}
   {% elif is_owner and not listing.is_live %}
-  <div class="mb-6 rounded-xl bg-stone-100 px-4 py-3 text-sm text-stone-700">Only you can see this page: the listing is {{ "awaiting approval" if listing.status == "published" else "a draft" }}.</div>
+  <div class="mb-6 rounded-xl bg-mist-100 px-4 py-3 text-sm text-mist-700">Only you can see this page: the listing is {{ "awaiting approval" if listing.status == "published" else "a draft" }}.</div>
   {% elif cancelled %}
-  <div class="mb-6 rounded-xl bg-stone-100 px-4 py-3 text-sm text-stone-700">Checkout cancelled. You have not been charged.</div>
+  <div class="mb-6 rounded-xl bg-mist-100 px-4 py-3 text-sm text-mist-700">Checkout cancelled. You have not been charged.</div>
   {% endif %}
 
   <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
       {% if listing.is_live %}
-      <div id="agent" class="rise order-1 min-w-0 lg:col-start-1 lg:row-start-1 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm">
-        <div class="flex items-center gap-3 bg-gradient-to-r from-brand-600 via-brand-600 to-gold-600 px-5 py-4 text-white">
+      <div id="agent" class="rise order-1 min-w-0 lg:col-start-1 lg:row-start-1 overflow-hidden rounded-2xl border border-mist-200/80 bg-white shadow-sm">
+        <div class="flex items-center gap-3 bg-brand-600 px-5 py-4 text-brand-50">
           <span class="relative grid h-10 w-10 place-items-center rounded-xl bg-white/15 text-xs font-bold ring-1 ring-white/25">AI
-            <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-brand-600"></span>
+            <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-sage-400 ring-2 ring-brand-600"></span>
           </span>
           <div class="min-w-0">
             <p class="font-semibold">Checkout agent</p>
             <p class="text-xs text-brand-100">Ask anything, or say how long you want to try it. Orders via the PayPal Agent Toolkit.</p>
           </div>
         </div>
-        <div id="agent-log" class="max-h-[28rem] min-h-[11rem] space-y-3 overflow-y-auto bg-stone-50/60 px-5 py-5 text-sm" aria-live="polite">
-          <div class="flex"><p class="max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 text-stone-800 shadow-sm ring-1 ring-stone-200/70" id="agent-intro">Hi! I can tell you about {{ listing.title }} and set up a private live demo for you. How long would you like to try it?</p></div>
+        <div id="agent-log" class="max-h-[28rem] min-h-[11rem] space-y-3 overflow-y-auto bg-mist-50/60 px-5 py-5 text-sm" aria-live="polite">
+          <div class="flex"><p class="max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 text-mist-800 shadow-sm ring-1 ring-mist-200/70" id="agent-intro">Hi! I can tell you about {{ listing.title }} and set up a private live demo for you. How long would you like to try it?</p></div>
         </div>
-        <div id="agent-chips" class="flex flex-wrap gap-2 bg-stone-50/60 px-5 pb-4">
+        <div id="agent-chips" class="flex flex-wrap gap-2 bg-mist-50/60 px-5 pb-4">
           {% for q in ["What does this app do?", "I'd like to try it for 1 hour", "How much for 2 hours?"] %}
           <button type="button" class="agent-chip press rounded-full bg-white px-3 py-1.5 text-xs font-medium text-brand-700 shadow-sm ring-1 ring-brand-200 hover:bg-brand-50">{{ q }}</button>
           {% endfor %}
         </div>
-        <form id="agent-form" class="flex gap-2 border-t border-stone-200/80 bg-white p-3">
+        <form id="agent-form" class="flex gap-2 border-t border-mist-200/80 bg-white p-3">
           <input id="agent-input" maxlength="500" autocomplete="off" placeholder="Message the checkout agent…"
-                 class="min-w-0 flex-1 rounded-xl border-0 bg-stone-100 px-3.5 py-2.5 text-sm placeholder:text-stone-400 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                 class="min-w-0 flex-1 rounded-xl border-0 bg-mist-100 px-3.5 py-2.5 text-sm placeholder:text-mist-400 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
           <button class="btn-brand press shine rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">Send</button>
         </form>
       </div>
       {% endif %}
 
-      <div data-reveal class="order-3 min-w-0 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-sm lg:col-start-1 {{ 'lg:row-start-2' if listing.is_live else 'lg:row-start-1' }}">
+      <div data-reveal class="order-3 min-w-0 rounded-2xl border border-mist-200/80 bg-white p-6 shadow-sm lg:col-start-1 {{ 'lg:row-start-2' if listing.is_live else 'lg:row-start-1' }}">
         <h2 class="font-semibold">What happens when you pay</h2>
         <ol class="mt-5 space-y-5 text-sm">
-          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-950 font-mono text-xs font-semibold text-white">1</span><div><p class="font-medium">PayPal (sandbox) takes the payment</p><p class="mt-0.5 text-stone-500">Captured on our server the moment you approve.</p></div></li>
+          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-950 font-mono text-xs font-semibold text-white">1</span><div><p class="font-medium">PayPal (sandbox) takes the payment</p><p class="mt-0.5 text-mist-500">Captured on our server the moment you approve.</p></div></li>
           <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-950 font-mono text-xs font-semibold text-white">2</span>
-            <div class="min-w-0 flex-1"><p class="font-medium">A fresh copy is deployed on Render <span class="font-normal text-stone-500">({{ listing.deploy_config.get("runtime") }})</span></p>
-              <div class="mt-2 overflow-x-auto rounded-xl bg-ink-950 px-4 py-3 font-mono text-xs leading-relaxed text-stone-300"><span class="text-stone-500">$</span> {{ listing.deploy_config.get("build_command") or "docker build" }}<br><span class="text-stone-500">$</span> {{ listing.deploy_config.get("start_command") or "docker run" }}</div></div></li>
-          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-600 text-[9px] font-bold text-white">AI</span><div><p class="font-medium">If it fails, AI fixes it</p><p class="mt-0.5 text-stone-500">It reads the logs, fixes the config and redeploys. If it still can't, you're refunded automatically.</p></div></li>
-          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emerald-500 font-mono text-xs font-semibold text-white">✓</span><div><p class="font-medium">Your private live link</p><p class="mt-0.5 text-stone-500">With a countdown. When time's up, it's deleted.</p></div></li>
+            <div class="min-w-0 flex-1"><p class="font-medium">A fresh copy is deployed on Render <span class="font-normal text-mist-500">({{ listing.deploy_config.get("runtime") }})</span></p>
+              <div class="mt-2 overflow-x-auto rounded-xl bg-ink-950 px-4 py-3 font-mono text-xs leading-relaxed text-mist-300"><span class="text-mist-500">$</span> {{ listing.deploy_config.get("build_command") or "docker build" }}<br><span class="text-mist-500">$</span> {{ listing.deploy_config.get("start_command") or "docker run" }}</div></div></li>
+          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-600 text-[9px] font-bold text-white">AI</span><div><p class="font-medium">If it fails, AI fixes it</p><p class="mt-0.5 text-mist-500">It reads the logs, fixes the config and redeploys. If it still can't, you're refunded automatically.</p></div></li>
+          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-sage-500 font-mono text-xs font-semibold text-white">✓</span><div><p class="font-medium">Your private live link</p><p class="mt-0.5 text-mist-500">With a countdown. When time's up, it's deleted.</p></div></li>
         </ol>
       </div>
 
     <aside class="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-      <div class="rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 lg:sticky lg:top-24">
+      <div class="rounded-2xl border border-mist-200/80 bg-white p-6 shadow-xl shadow-mist-900/5 lg:sticky lg:top-24">
         <p class="text-sm font-semibold">Rent a private copy</p>
         <fieldset class="mt-4">
-          <legend class="text-xs font-medium text-stone-500">How long?</legend>
-          <div class="mt-2 grid grid-cols-{{ hours_options|length }} gap-1 rounded-xl bg-stone-100 p-1">
+          <legend class="text-xs font-medium text-mist-500">How long?</legend>
+          <div class="mt-2 grid grid-cols-{{ hours_options|length }} gap-1 rounded-xl bg-mist-100 p-1">
             {% for h in hours_options %}
             <label class="cursor-pointer">
               <input type="radio" name="hours" value="{{ h }}" class="peer sr-only" {% if loop.first %}checked{% endif %}>
-              <span class="block rounded-lg px-3 py-2 text-center text-sm font-medium text-stone-600 transition peer-checked:bg-white peer-checked:text-stone-900 peer-checked:shadow-sm">{{ h }} hour{{ "s" if h > 1 }}</span>
+              <span class="block rounded-lg px-3 py-2 text-center text-sm font-medium text-mist-600 transition peer-checked:bg-white peer-checked:text-mist-900 peer-checked:shadow-sm">{{ h }} hour{{ "s" if h > 1 }}</span>
             </label>
             {% endfor %}
           </div>
         </fieldset>
         <div class="mt-5 flex items-baseline justify-between">
-          <span class="text-sm text-stone-500">Total</span>
+          <span class="text-sm text-mist-500">Total</span>
           <span id="total" class="text-2xl font-bold tracking-tight" data-price="{{ listing.price_per_hour }}">{{ listing.price_per_hour|money }}</span>
         </div>
         {% if listing.is_live and paypal_client_id %}
         <div id="checkout-msg" class="mt-5 hidden rounded-xl px-3.5 py-2.5 text-sm" role="status"></div>
         <div id="paypal-buttons" class="mt-5 min-h-[50px]"></div>
         {% elif not listing.is_live %}
-        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-500">Checkout opens once the listing is live</button>
+        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-mist-200 px-5 py-3 text-sm font-semibold text-mist-500">Checkout opens once the listing is live</button>
         {% else %}
-        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-500">Payments aren't configured</button>
+        <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-mist-200 px-5 py-3 text-sm font-semibold text-mist-500">Payments aren't configured</button>
         {% endif %}
-        <ul class="mt-5 space-y-2 border-t border-stone-100 pt-5 text-sm text-stone-600">
-          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Private URL, live in ~1–3 minutes</li>
-          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> AI self-healing if the build fails</li>
-          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Full refund if it can't start</li>
+        <ul class="mt-5 space-y-2 border-t border-mist-100 pt-5 text-sm text-mist-600">
+          <li class="flex items-center gap-2"><span class="text-sage-500">✓</span> Private URL, live in ~1–3 minutes</li>
+          <li class="flex items-center gap-2"><span class="text-sage-500">✓</span> AI self-healing if the build fails</li>
+          <li class="flex items-center gap-2"><span class="text-sage-500">✓</span> Full refund if it can't start</li>
         </ul>
         <p class="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs text-amber-800">PayPal sandbox: use a sandbox buyer account. No real money moves.</p>
       </div>
@@ -158,7 +158,7 @@
       const row = el("div", role === "user" ? "flex justify-end" : "flex flex-col items-start");
       row.appendChild(el("p", role === "user"
         ? "btn-brand max-w-[85%] whitespace-pre-line rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-white shadow-sm"
-        : "max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 text-stone-800 shadow-sm ring-1 ring-stone-200/70", text));
+        : "max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 text-mist-800 shadow-sm ring-1 ring-mist-200/70", text));
       if (tools && tools.length) {
         const chips = el("div", "mt-1 flex flex-wrap gap-1");
         [...new Set(tools)].forEach((t) => chips.appendChild(el("span", "rounded bg-brand-50 px-1.5 py-0.5 font-mono text-[10px] text-brand-600", "🔧 " + t)));
@@ -168,11 +168,11 @@
     }
     function orderCard(order) {
       const card = el("div", "rounded-xl bg-amber-50 p-3.5 ring-1 ring-amber-200");
-      card.appendChild(el("p", "text-sm font-semibold text-stone-900", `${order.hours} hour${order.hours > 1 ? "s" : ""} · $${order.total}`));
+      card.appendChild(el("p", "text-sm font-semibold text-mist-900", `${order.hours} hour${order.hours > 1 ? "s" : ""} · $${order.total}`));
       const pay = el("a", "mt-2.5 flex items-center justify-center rounded-lg bg-[#FFC439] px-4 py-2.5 text-sm font-bold text-[#003087] hover:brightness-95", "Pay with PayPal");
       pay.href = order.approve_url;
       card.appendChild(pay);
-      card.appendChild(el("p", "mt-2 text-xs text-stone-600", "You'll approve on PayPal (sandbox) and come straight back to watch your environment start."));
+      card.appendChild(el("p", "mt-2 text-xs text-mist-600", "You'll approve on PayPal (sandbox) and come straight back to watch your environment start."));
       log.appendChild(card); scroll();
     }
     async function send(text) {
@@ -182,7 +182,7 @@
       bubble("user", text);
       history.push({ role: "user", content: text });
       input.value = ""; form.querySelector("button").disabled = true;
-      const typing = el("p", "text-xs text-stone-400", "Agent is thinking…"); log.appendChild(typing); scroll();
+      const typing = el("p", "text-xs text-mist-400", "Agent is thinking…"); log.appendChild(typing); scroll();
       try {
         const resp = await fetch("/api/agent/{{ listing.slug }}/chat", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -212,7 +212,7 @@
   (function () {
     const msg = document.getElementById("checkout-msg");
     const show = (text, kind) => {
-      const styles = { error: "bg-rose-50 text-rose-800 ring-1 ring-rose-200", info: "bg-brand-50 text-brand-800 ring-1 ring-brand-100" };
+      const styles = { error: "bg-red-50 text-red-800 ring-1 ring-red-200", info: "bg-brand-50 text-brand-800 ring-1 ring-brand-100" };
       msg.className = "mt-5 rounded-xl px-3.5 py-2.5 text-sm " + styles[kind];
       msg.textContent = text;
     };
@@ -255,7 +255,7 @@
     });
     history.replaceState(null, "", location.pathname);  // don't celebrate again on refresh
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const colors = ["#ef5a2a", "#ecc055", "#fb7a4a", "#10b981", "#b33416", "#f3d88e"];
+    const colors = ["#6c151e", "#0f3d3a", "#f5dabf", "#3f8a6a", "#c97a6f", "#e9b8a0"];
     const layer = document.createElement("div");
     layer.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden";
     document.body.appendChild(layer);

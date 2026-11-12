@@ -1,17 +1,17 @@
 {# Duolingo-style progress for the owner onboarding. Pass `onboarding_step` (1-3). #}
 {% set labels = ["Paste your repo", "Review & price", "You're live"] %}
 <div class="mx-auto flex max-w-3xl items-center gap-4">
-  <a href="/" class="press grid h-9 w-9 shrink-0 place-items-center rounded-full text-xl text-stone-400 hover:bg-black/5 hover:text-stone-700" aria-label="Leave">×</a>
+  <a href="/" class="press grid h-9 w-9 shrink-0 place-items-center rounded-full text-xl text-mist-400 hover:bg-black/5 hover:text-mist-700" aria-label="Leave">×</a>
   <div class="h-4 flex-1 overflow-hidden rounded-full bg-black/[.07]">
-    <div class="relative h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-700" style="width: {{ (onboarding_step / 3 * 100)|round|int }}%">
+    <div class="relative h-full rounded-full bg-gradient-to-r from-sage-400 to-sage-500 transition-all duration-700" style="width: {{ (onboarding_step / 3 * 100)|round|int }}%">
       <span class="absolute inset-x-2 top-1 h-1 rounded-full bg-white/40"></span>
     </div>
   </div>
-  <p class="shrink-0 font-mono text-xs font-semibold text-stone-500">{{ onboarding_step }} / 3</p>
+  <p class="shrink-0 font-mono text-xs font-semibold text-mist-500">{{ onboarding_step }} / 3</p>
 </div>
 <ol class="mx-auto mt-3 hidden max-w-3xl justify-between px-12 text-xs font-semibold sm:flex">
   {% for label in labels %}
-  <li class="{{ 'text-emerald-600' if loop.index < onboarding_step else ('text-stone-900' if loop.index == onboarding_step else 'text-stone-400') }}">
+  <li class="{{ 'text-sage-600' if loop.index < onboarding_step else ('text-mist-900' if loop.index == onboarding_step else 'text-mist-400') }}">
     {{ "✓ " if loop.index < onboarding_step }}{{ label }}
   </li>
   {% endfor %}

@@ -3,20 +3,20 @@
 {% block content %}
 <section class="band">
   <div class="mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-6">
-    <a href="/l/{{ listing.slug }}" class="text-sm text-stone-400 hover:text-white">← {{ listing.title }}</a>
+    <a href="/l/{{ listing.slug }}" class="text-sm text-mist-400 hover:text-white">← {{ listing.title }}</a>
     <div class="mt-5 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="font-mono text-xs uppercase tracking-widest text-stone-500">Private session · {{ s.id.hex[:8] }}</p>
+        <p class="font-mono text-xs uppercase tracking-widest text-mist-500">Private session · {{ s.id.hex[:8] }}</p>
         <h1 class="rise mt-2 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Your live demo of <span class="serif-accent text-gradient pr-1">{{ listing.title }}</span></h1>
       </div>
-      <p class="glass rounded-full px-3 py-1.5 text-xs text-stone-300">Bookmark this page: it's your private access</p>
+      <p class="glass rounded-full px-3 py-1.5 text-xs text-mist-300">Bookmark this page: it's your private access</p>
     </div>
   </div>
 </section>
 
 <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
   {% if error %}
-  <div class="mb-6 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-200">
+  <div class="mb-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-200">
     {% if error == "INSTRUMENT_DECLINED" %}Your payment method was declined. Go back and pick another one.
     {% elif error == "CAPACITY" %}All preview slots filled up before we could start yours. You have not been charged.
     {% else %}We couldn't confirm the payment with PayPal yet. If you completed it, this page updates on its own.{% endif %}

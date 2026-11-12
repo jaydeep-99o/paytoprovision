@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}PayToProvision: paid live demos for any GitHub repo{% endblock %}</title>
   <meta name="description" content="Turn any GitHub repo into a paid live demo. AI makes it deployable, buyers pay through an AI checkout agent with PayPal, Render runs it.">
-  <meta name="theme-color" content="#110f0d">
+  <meta name="theme-color" content="#0f3d3a">
   <script>document.documentElement.classList.add("js");</script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fb7a4a'/%3E%3Cstop offset='1' stop-color='%23b33416'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M11 23V9h6.5a4.5 4.5 0 0 1 0 9H11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236c151e'/%3E%3Cstop offset='1' stop-color='%230f3d3a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M11 23V9h6.5a4.5 4.5 0 0 1 0 9H11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -18,19 +18,26 @@
       --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
       --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
       --font-serif: "Instrument Serif", Georgia, serif;
-      /* Theme "Ember": burnt-orange + brass on warm ink and cream. Swap these to re-theme. */
-      --color-brand-50: #fff5f0; --color-brand-100: #ffe7db; --color-brand-200: #ffcab3; --color-brand-300: #ffa47f;
-      --color-brand-400: #fb7a4a; --color-brand-500: #ef5a2a; --color-brand-600: #d9441a; --color-brand-700: #b33416;
-      --color-brand-800: #8e2c18; --color-brand-900: #742817; --color-brand-950: #3f1109;
-      --color-gold-50: #fdf8ec; --color-gold-100: #f9ecc9; --color-gold-200: #f3d88e; --color-gold-300: #ecc055;
-      --color-gold-400: #e6aa30; --color-gold-500: #d48c1b; --color-gold-600: #b86b14; --color-gold-700: #934f14;
-      --color-gold-800: #7a4017; --color-gold-900: #663518;
-      --color-ink-950: #110f0d;
-      --color-ink-900: #1a1714;
-      --color-ink-800: #26211d;
-      --color-ink-700: #352e28;
-      --color-paper: #f5f0e7;
-      --color-paper-2: #ece5d8;
+      /* Theme: deep green (surfaces), bordeaux (actions), cream (highlights). Swap these to re-theme.
+         brand = cream -> bordeaux ramp; pine = green ramp; sage = success; mist = green-tinted neutrals. */
+      --color-brand-50: #fdf7f1; --color-brand-100: #f9ecdf; --color-brand-200: #f5dabf; --color-brand-300: #e9b8a0;
+      --color-brand-400: #c97a6f; --color-brand-500: #9b3a3f; --color-brand-600: #6c151e; --color-brand-700: #5a1119;
+      --color-brand-800: #470d14; --color-brand-900: #360a0f; --color-brand-950: #22060a;
+      --color-pine-50: #eef5f3; --color-pine-100: #d6e8e3; --color-pine-200: #a9cfc5; --color-pine-300: #74ae9f;
+      --color-pine-400: #3f8a7a; --color-pine-500: #1f6a60; --color-pine-600: #155550; --color-pine-700: #0f3d3a;
+      --color-pine-800: #0b2f2c; --color-pine-900: #082321;
+      --color-sage-50: #eef6f1; --color-sage-100: #dcebe3; --color-sage-200: #b9d8c8; --color-sage-300: #8fbfa6;
+      --color-sage-400: #5ea383; --color-sage-500: #3f8a6a; --color-sage-600: #2f7357; --color-sage-700: #255c46;
+      --color-sage-800: #1d4a3c; --color-sage-900: #163a30;
+      --color-mist-50: #f6f7f5; --color-mist-100: #ebeeeb; --color-mist-200: #d8ddd9; --color-mist-300: #b9c2be;
+      --color-mist-400: #8d9a96; --color-mist-500: #66746f; --color-mist-600: #4d5a56; --color-mist-700: #3a4643;
+      --color-mist-800: #263330; --color-mist-900: #16231f; --color-mist-950: #0c1715;
+      --color-ink-950: #0f3d3a;
+      --color-ink-900: #144844;
+      --color-ink-800: #1a5550;
+      --color-ink-700: #23665f;
+      --color-paper: #fbf3ea;
+      --color-paper-2: #f5e6d4;
       --color-pp-gold: #ffc439;
       --color-pp-navy: #003087;
     }
@@ -41,7 +48,7 @@
     .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { display: flex; }
 
     /* ---- Linear: dark bands with a hairline grid and glow ---- */
-    .band { position: relative; overflow: hidden; background: #110f0d; color: #fff; isolation: isolate; }
+    .band { position: relative; overflow: hidden; background: #0f3d3a; color: #fff; isolation: isolate; }
     .band::before {
       content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
       background-image: linear-gradient(to right, rgb(255 255 255 / .05) 1px, transparent 1px),
@@ -52,24 +59,24 @@
     }
     .band::after {
       content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background: radial-gradient(42rem 24rem at 80% -10%, rgb(239 90 42 / .30), transparent 70%),
-                  radial-gradient(30rem 20rem at 0% 0%, rgb(236 192 85 / .13), transparent 70%);
+      background: radial-gradient(42rem 24rem at 80% -10%, rgb(245 218 191 / .12), transparent 70%),
+                  radial-gradient(30rem 20rem at 0% 0%, rgb(108 21 30 / .45), transparent 70%);
     }
     .glass { background: rgb(255 255 255 / .04); border: 1px solid rgb(255 255 255 / .1); backdrop-filter: blur(8px); }
 
     /* ---- Stripe: slowly drifting gradient mesh ---- */
     .mesh { position: absolute; inset: -25%; z-index: -1; pointer-events: none; filter: blur(80px); opacity: .32;
-      background: radial-gradient(28% 34% at 22% 30%, #ef5a2a 0%, transparent 70%),
-                  radial-gradient(26% 30% at 72% 22%, #e6aa30 0%, transparent 70%),
-                  radial-gradient(30% 32% at 60% 78%, #b33416 0%, transparent 70%),
-                  radial-gradient(22% 26% at 12% 82%, #7c2d12 0%, transparent 70%);
+      background: radial-gradient(28% 34% at 22% 30%, #6c151e 0%, transparent 70%),
+                  radial-gradient(26% 30% at 72% 22%, #f5dabf 0%, transparent 70%),
+                  radial-gradient(30% 32% at 60% 78%, #3f8a7a 0%, transparent 70%),
+                  radial-gradient(22% 26% at 12% 82%, #082321 0%, transparent 70%);
       animation: mesh 22s ease-in-out infinite alternate; }
     @keyframes mesh { 0% { transform: translate3d(0,0,0) rotate(0) scale(1); } 100% { transform: translate3d(-5%,4%,0) rotate(10deg) scale(1.12); } }
 
     /* ---- Pentagram / Aesop: editorial serif accent ---- */
     .serif-accent { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
-    .text-gradient { background: linear-gradient(95deg, #ffd6bf 0%, #fb7a4a 45%, #ecc055 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .btn-brand { background: linear-gradient(135deg, #fb7a4a, #ef5a2a 50%, #b33416); }
+    .text-gradient { background: linear-gradient(95deg, #fdf7f1 0%, #f5dabf 55%, #e9b8a0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .btn-brand { background: linear-gradient(135deg, #8a1f2a, #6c151e 55%, #4f0f16); }
 
     /* ---- Apple: reveal on scroll and staggered rise ---- */
     .js [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); transition-delay: var(--delay, 0ms); }
@@ -92,7 +99,7 @@
     .press:active { transform: scale(.97); }
     .spotlight { position: relative; }
     .spotlight::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0;
-      background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgb(239 90 42 / .10), transparent 45%);
+      background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgb(108 21 30 / .07), transparent 45%);
       opacity: 0; transition: opacity .35s; }
     .spotlight:hover::before { opacity: 1; }
     .spotlight > * { position: relative; z-index: 1; }
@@ -113,20 +120,20 @@
   </style>
   {% block head %}{% endblock %}
 </head>
-<body class="flex min-h-screen flex-col bg-paper font-sans text-stone-900 antialiased selection:bg-brand-200">
-  <header class="sticky top-0 z-30 border-b border-white/10 bg-ink-950/80 text-white backdrop-blur-xl">
+<body class="flex min-h-screen flex-col bg-paper font-sans text-mist-900 antialiased selection:bg-brand-200 selection:text-brand-800">
+  <header class="sticky top-0 z-30 border-b border-white/10 bg-ink-950/95 text-white backdrop-blur-xl">
     <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
       <a href="/" class="press flex items-center gap-2.5 font-semibold tracking-tight">
-        <span class="btn-brand grid h-8 w-8 place-items-center rounded-[9px] shadow-lg shadow-brand-500/30">
-          <svg viewBox="0 0 32 32" class="h-5 w-5" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 24V8h6.5a5 5 0 0 1 0 10H11"/></svg>
+        <span class="grid h-8 w-8 place-items-center rounded-[9px] bg-brand-200">
+          <svg viewBox="0 0 32 32" class="h-5 w-5" fill="none" stroke="#6c151e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 24V8h6.5a5 5 0 0 1 0 10H11"/></svg>
         </span>
-        <span>PayTo<span class="text-brand-300">Provision</span></span>
+        <span>PayTo<span class="text-brand-200">Provision</span></span>
       </a>
-      <div class="flex items-center gap-5 whitespace-nowrap text-sm text-stone-300">
+      <div class="flex items-center gap-5 whitespace-nowrap text-sm text-mist-300">
         <a href="/#how" class="ul-link hidden hover:text-white md:block">How it works</a>
         <a href="/#listings" class="ul-link hidden hover:text-white sm:block">Marketplace</a>
         <a href="/owner/dashboard" class="ul-link hidden hover:text-white sm:block">Dashboard</a>
-        <a href="/owner/new" class="press shine rounded-full bg-white px-4 py-2 font-semibold text-ink-950">List your repo</a>
+        <a href="/owner/new" class="press shine rounded-full bg-brand-200 px-4 py-2 font-semibold text-brand-700">List your repo</a>
       </div>
     </nav>
   </header>
@@ -142,12 +149,12 @@
       </p>
       <div class="mt-14 grid gap-8 border-t border-white/10 pt-8 text-sm md:grid-cols-3">
         <div>
-          <p class="flex items-center gap-2 font-semibold"><span class="btn-brand inline-block h-5 w-5 rounded-md"></span>PayToProvision</p>
-          <p class="mt-3 max-w-xs leading-relaxed text-stone-400">Paid live demos for any GitHub repo. AI deploys it, PayPal takes the payment, Render runs it.</p>
+          <p class="flex items-center gap-2 font-semibold"><span class="inline-block h-5 w-5 rounded-md bg-brand-200"></span>PayToProvision</p>
+          <p class="mt-3 max-w-xs leading-relaxed text-brand-100/70">Paid live demos for any GitHub repo. AI deploys it, PayPal takes the payment, Render runs it.</p>
         </div>
         <div>
-          <p class="font-medium text-stone-200">Built with</p>
-          <ul class="mt-3 space-y-1.5 text-stone-400">
+          <p class="font-medium text-mist-200">Built with</p>
+          <ul class="mt-3 space-y-1.5 text-brand-100/70">
             <li>PayPal Orders, Agent Toolkit, Webhooks, Refunds, Payouts</li>
             <li>Render API, Render Postgres, Blueprints</li>
             <li>Nebius Token Factory · NVIDIA Nemotron</li>
@@ -155,8 +162,8 @@
         </div>
         <div class="md:text-right">
           <span class="inline-flex items-center gap-1.5 rounded-full bg-pp-gold/15 px-2.5 py-1 text-xs font-semibold text-pp-gold ring-1 ring-pp-gold/30">● PayPal sandbox</span>
-          <p class="mt-3 text-stone-400">No real money moves. Use a sandbox buyer account.</p>
-          <a href="https://github.com/jaydeep-99o/paytoprovision" class="ul-link mt-2 inline-block text-stone-300 hover:text-white" target="_blank" rel="noopener">Source on GitHub ↗</a>
+          <p class="mt-3 text-brand-100/70">No real money moves. Use a sandbox buyer account.</p>
+          <a href="https://github.com/jaydeep-99o/paytoprovision" class="ul-link mt-2 inline-block text-mist-300 hover:text-white" target="_blank" rel="noopener">Source on GitHub ↗</a>
         </div>
       </div>
     </div>
