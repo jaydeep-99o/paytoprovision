@@ -123,6 +123,9 @@ class FakePayPal:
             self.bodies.append(json.loads(request.content))
         if path == "/v1/oauth2/token":
             return httpx.Response(200, json={"access_token": "tok", "expires_in": 32400})
+        if method == "POST" and request.headers.get("content-type") != "application/json":
+            # Like the real API: POSTs must be JSON, even with nothing to send (e.g. capture).
+            return httpx.Response(415, json={"name": "UNSUPPORTED_MEDIA_TYPE", "debug_id": "d0"})
         if path == "/v2/checkout/orders" and method == "POST":
             self.orders += 1
             oid = f"ORDER-{self.orders}"

@@ -80,6 +80,14 @@ def test_return_url_captures_and_redirects(client, live_listing, submitted):
     assert len(submitted) == 1
 
 
+def test_return_url_capture_failure_shows_session_not_500(client, live_listing, paypal_fake, submitted):
+    order_id = create(client).json()["id"]
+    paypal_fake.capture_error = "SOMETHING_UNEXPECTED"
+    resp = client.get(f"/checkout/return?token={order_id}&PayerID=ABC", follow_redirects=False)
+    assert resp.status_code == 303 and "error=" in resp.headers["location"]
+    assert submitted == []
+
+
 def test_session_page_and_status_fragment(client, live_listing):
     order_id = create(client).json()["id"]
     redirect = client.post(f"/api/checkout/orders/{order_id}/capture").json()["redirect"]

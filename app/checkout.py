@@ -136,7 +136,9 @@ def complete_payment(db: Session, paypal: PayPalClient, order_id: str) -> Previe
                 ) from exc
             if exc.issue == "ORDER_NOT_APPROVED":
                 raise CheckoutError("The payment hasn't been approved yet.", status_code=409, issue=exc.issue) from exc
-            raise CheckoutError("PayPal couldn't complete the payment. You have not been charged.", 502) from exc
+            raise CheckoutError(
+                "PayPal couldn't complete the payment. You have not been charged.", status_code=502
+            ) from exc
 
         capture_id, capture_status, payer_email = capture_details(order)
         session.paypal_capture_id = capture_id

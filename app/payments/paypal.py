@@ -118,6 +118,8 @@ class PayPalClient:
         """Retries 5xx/429/network errors only for GETs or calls carrying a PayPal-Request-Id
         (which PayPal deduplicates). Refreshes the token once on 401."""
         safe_to_retry = method == "GET" or request_id is not None
+        if method != "GET" and json is None:
+            json = {}  # PayPal rejects body-less POSTs without a JSON content type (415), e.g. capture
         refreshed = False
         attempt = 0
         while True:
