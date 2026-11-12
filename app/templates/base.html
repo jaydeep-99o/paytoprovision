@@ -6,20 +6,24 @@
   <title>{% block title %}PayToProvision: paid live demos for any GitHub repo{% endblock %}</title>
   <meta name="description" content="Turn any GitHub repo into a paid live demo. AI makes it deployable, buyers pay through an AI checkout agent with PayPal, Render runs it.">
   <meta name="theme-color" content="#05070f">
+  <script>document.documentElement.classList.add("js");</script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M11 23V9h6.5a4.5 4.5 0 0 1 0 9H11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <style type="text/tailwindcss">
     @theme {
       --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
       --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+      --font-serif: "Instrument Serif", Georgia, serif;
       --color-ink-950: #05070f;
       --color-ink-900: #0a0f1f;
       --color-ink-800: #121a33;
       --color-ink-700: #1e2747;
+      --color-paper: #f7f6f2;
+      --color-paper-2: #efede6;
       --color-pp-gold: #ffc439;
       --color-pp-navy: #003087;
     }
@@ -29,45 +33,93 @@
     .htmx-indicator { display: none; }
     .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { display: flex; }
 
-    /* Dark "band" sections: ink background, faint grid and brand glow. */
+    /* ---- Linear: dark bands with a hairline grid and glow ---- */
     .band { position: relative; overflow: hidden; background: #05070f; color: #fff; isolation: isolate; }
     .band::before {
       content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background-image: linear-gradient(to right, rgb(255 255 255 / .055) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgb(255 255 255 / .055) 1px, transparent 1px);
+      background-image: linear-gradient(to right, rgb(255 255 255 / .05) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgb(255 255 255 / .05) 1px, transparent 1px);
       background-size: 44px 44px;
       -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 0%, #000 35%, transparent 100%);
               mask-image: radial-gradient(ellipse 85% 75% at 50% 0%, #000 35%, transparent 100%);
     }
     .band::after {
       content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background: radial-gradient(42rem 24rem at 80% -10%, rgb(99 102 241 / .38), transparent 70%),
-                  radial-gradient(30rem 20rem at 0% 0%, rgb(6 182 212 / .18), transparent 70%);
+      background: radial-gradient(42rem 24rem at 80% -10%, rgb(99 102 241 / .34), transparent 70%),
+                  radial-gradient(30rem 20rem at 0% 0%, rgb(6 182 212 / .16), transparent 70%);
     }
-    .text-gradient {
-      background: linear-gradient(95deg, #c7d2fe 0%, #818cf8 40%, #22d3ee 100%);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-    }
-    .btn-brand { background: linear-gradient(135deg, #6366f1, #4f46e5 55%, #0891b2); }
-    .btn-brand:hover { filter: brightness(1.08); }
     .glass { background: rgb(255 255 255 / .04); border: 1px solid rgb(255 255 255 / .1); backdrop-filter: blur(8px); }
+
+    /* ---- Stripe: slowly drifting gradient mesh ---- */
+    .mesh { position: absolute; inset: -25%; z-index: -1; pointer-events: none; filter: blur(80px); opacity: .32;
+      background: radial-gradient(28% 34% at 22% 30%, #6366f1 0%, transparent 70%),
+                  radial-gradient(26% 30% at 72% 22%, #06b6d4 0%, transparent 70%),
+                  radial-gradient(30% 32% at 60% 78%, #a855f7 0%, transparent 70%),
+                  radial-gradient(22% 26% at 12% 82%, #f59e0b 0%, transparent 70%);
+      animation: mesh 22s ease-in-out infinite alternate; }
+    @keyframes mesh { 0% { transform: translate3d(0,0,0) rotate(0) scale(1); } 100% { transform: translate3d(-5%,4%,0) rotate(10deg) scale(1.12); } }
+
+    /* ---- Pentagram / Aesop: editorial serif accent ---- */
+    .serif-accent { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+    .text-gradient { background: linear-gradient(95deg, #c7d2fe 0%, #818cf8 40%, #22d3ee 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .btn-brand { background: linear-gradient(135deg, #6366f1, #4f46e5 55%, #0891b2); }
+
+    /* ---- Apple: reveal on scroll and staggered rise ---- */
+    .js [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); transition-delay: var(--delay, 0ms); }
+    .js [data-reveal].is-visible { opacity: 1; transform: none; }
+    /* Visible by default; the keyframes (fill-mode both) hide them only while they wait to play. */
+    .rise { animation: rise 1s cubic-bezier(.16,1,.3,1) both; animation-delay: var(--d, 0ms); }
+    span.rise { display: inline-block; }  /* transforms need a box; blocks stay blocks */
+    @keyframes rise { from { opacity: 0; transform: translateY(.45em); } to { opacity: 1; transform: none; } }
+    .play { animation: play .7s cubic-bezier(.16,1,.3,1) both; animation-delay: var(--d, 0ms); }
+    @keyframes play { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* ---- Framer: micro-interactions ---- */
+    .shine { position: relative; overflow: hidden; }
+    .shine::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / .38) 50%, transparent 70%);
+      transform: translateX(-130%); transition: transform .8s cubic-bezier(.16,1,.3,1); }
+    .shine:hover::after { transform: translateX(130%); }
+    .press { transition: transform .18s cubic-bezier(.16,1,.3,1), box-shadow .2s, filter .2s; }
+    .press:hover { filter: brightness(1.06); }
+    .press:active { transform: scale(.97); }
+    .spotlight { position: relative; }
+    .spotlight::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0;
+      background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgb(99 102 241 / .11), transparent 45%);
+      opacity: 0; transition: opacity .35s; }
+    .spotlight:hover::before { opacity: 1; }
+    .spotlight > * { position: relative; z-index: 1; }
+    .lift { transition: transform .45s cubic-bezier(.16,1,.3,1), box-shadow .45s, border-color .3s; }
+    .lift:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -24px rgb(15 23 42 / .25); }
+    .ul-link { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .35s cubic-bezier(.16,1,.3,1); }
+    .ul-link:hover { background-size: 100% 1px; }
+
+    /* ---- Duolingo: chunky, pressable buttons ---- */
+    .chunky { border-bottom-width: 4px; transition: transform .08s, border-bottom-width .08s, filter .2s; }
+    .chunky:hover { filter: brightness(1.05); }
+    .chunky:active { transform: translateY(2px); border-bottom-width: 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .js [data-reveal], .rise, .play { opacity: 1 !important; transform: none !important; animation: none !important; transition: none !important; }
+      .mesh { animation: none; }
+    }
   </style>
   {% block head %}{% endblock %}
 </head>
-<body class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased">
-  <header class="sticky top-0 z-30 border-b border-white/10 bg-ink-950/85 text-white backdrop-blur-md">
+<body class="flex min-h-screen flex-col bg-paper font-sans text-slate-900 antialiased selection:bg-indigo-200">
+  <header class="sticky top-0 z-30 border-b border-white/10 bg-ink-950/80 text-white backdrop-blur-xl">
     <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-      <a href="/" class="flex items-center gap-2.5 font-semibold tracking-tight">
+      <a href="/" class="press flex items-center gap-2.5 font-semibold tracking-tight">
         <span class="btn-brand grid h-8 w-8 place-items-center rounded-[9px] shadow-lg shadow-indigo-500/30">
           <svg viewBox="0 0 32 32" class="h-5 w-5" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 24V8h6.5a5 5 0 0 1 0 10H11"/></svg>
         </span>
         <span>PayTo<span class="text-indigo-300">Provision</span></span>
       </a>
-      <div class="flex items-center gap-1 whitespace-nowrap text-sm font-medium text-slate-300">
-        <a href="/#how" class="hidden rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white md:block">How it works</a>
-        <a href="/#listings" class="hidden rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white sm:block">Demos</a>
-        <a href="/owner/dashboard" class="hidden rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white sm:block">Dashboard</a>
-        <a href="/owner/new" class="ml-1 rounded-lg bg-white px-3.5 py-2 font-semibold text-ink-950 hover:bg-indigo-50">List your repo</a>
+      <div class="flex items-center gap-5 whitespace-nowrap text-sm text-slate-300">
+        <a href="/#how" class="ul-link hidden hover:text-white md:block">How it works</a>
+        <a href="/#listings" class="ul-link hidden hover:text-white sm:block">Marketplace</a>
+        <a href="/owner/dashboard" class="ul-link hidden hover:text-white sm:block">Dashboard</a>
+        <a href="/owner/new" class="press shine rounded-full bg-white px-4 py-2 font-semibold text-ink-950">List your repo</a>
       </div>
     </nav>
   </header>
@@ -77,25 +129,56 @@
   </main>
 
   <footer class="band border-t border-white/10">
-    <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 text-sm sm:px-6 md:grid-cols-3">
-      <div>
-        <p class="flex items-center gap-2 font-semibold"><span class="btn-brand inline-block h-5 w-5 rounded-md"></span>PayToProvision</p>
-        <p class="mt-3 max-w-xs leading-relaxed text-slate-400">Paid live demos for any GitHub repo. AI deploys it, PayPal takes the payment, Render runs it.</p>
-      </div>
-      <div>
-        <p class="font-semibold text-slate-200">Built with</p>
-        <ul class="mt-3 space-y-1.5 text-slate-400">
-          <li>PayPal Orders, Agent Toolkit, Webhooks, Refunds, Payouts</li>
-          <li>Render API, Render Postgres, Blueprints</li>
-          <li>Nebius Token Factory · NVIDIA Nemotron</li>
-        </ul>
-      </div>
-      <div class="md:text-right">
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-pp-gold/15 px-2.5 py-1 text-xs font-semibold text-pp-gold ring-1 ring-pp-gold/30">● PayPal sandbox</span>
-        <p class="mt-3 text-slate-400">No real money moves. Use a sandbox buyer account.</p>
-        <a href="https://github.com/jaydeep-99o/paytoprovision" class="mt-2 inline-block text-slate-300 hover:text-white" target="_blank" rel="noopener">Source on GitHub ↗</a>
+    <div class="mx-auto max-w-6xl px-4 pb-10 pt-16 sm:px-6">
+      <p class="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-5xl">
+        Ship the demo, <span class="serif-accent text-indigo-300">not the infrastructure.</span>
+      </p>
+      <div class="mt-14 grid gap-8 border-t border-white/10 pt-8 text-sm md:grid-cols-3">
+        <div>
+          <p class="flex items-center gap-2 font-semibold"><span class="btn-brand inline-block h-5 w-5 rounded-md"></span>PayToProvision</p>
+          <p class="mt-3 max-w-xs leading-relaxed text-slate-400">Paid live demos for any GitHub repo. AI deploys it, PayPal takes the payment, Render runs it.</p>
+        </div>
+        <div>
+          <p class="font-medium text-slate-200">Built with</p>
+          <ul class="mt-3 space-y-1.5 text-slate-400">
+            <li>PayPal Orders, Agent Toolkit, Webhooks, Refunds, Payouts</li>
+            <li>Render API, Render Postgres, Blueprints</li>
+            <li>Nebius Token Factory · NVIDIA Nemotron</li>
+          </ul>
+        </div>
+        <div class="md:text-right">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-pp-gold/15 px-2.5 py-1 text-xs font-semibold text-pp-gold ring-1 ring-pp-gold/30">● PayPal sandbox</span>
+          <p class="mt-3 text-slate-400">No real money moves. Use a sandbox buyer account.</p>
+          <a href="https://github.com/jaydeep-99o/paytoprovision" class="ul-link mt-2 inline-block text-slate-300 hover:text-white" target="_blank" rel="noopener">Source on GitHub ↗</a>
+        </div>
       </div>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      // Apple-style reveals: [data-reveal] fades up when it enters the viewport;
+      // children of [data-stagger] get increasing delays.
+      const io = "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); } });
+      }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }) : null;
+      window.ptpReveal = (root) => {
+        (root || document).querySelectorAll("[data-stagger]").forEach((p) =>
+          [...p.children].forEach((c, i) => c.style.setProperty("--delay", i * 90 + "ms")));
+        (root || document).querySelectorAll("[data-reveal]:not(.is-visible)").forEach((el) =>
+          io ? io.observe(el) : el.classList.add("is-visible"));
+      };
+      window.ptpReveal();
+      // Framer-style spotlight: cards light up under the cursor.
+      document.addEventListener("pointermove", (e) => {
+        const card = e.target.closest && e.target.closest(".spotlight");
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--mx", e.clientX - r.left + "px");
+        card.style.setProperty("--my", e.clientY - r.top + "px");
+      });
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

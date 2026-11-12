@@ -1,104 +1,110 @@
 {% extends "base.html" %}
 {% block title %}List your repo · PayToProvision{% endblock %}
 {% block content %}
-<section class="band">
-  <div class="mx-auto max-w-3xl px-4 pb-16 pt-14 text-center sm:px-6">
-    <span class="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-slate-300">For repo owners · you keep 80%</span>
-    <h1 class="mt-6 text-4xl font-bold tracking-[-0.035em] sm:text-5xl">List your repo in <span class="text-gradient">one paste</span></h1>
-    <p class="mx-auto mt-4 max-w-xl text-lg text-slate-400">
-      AI reads your repo and writes the deploy plan: runtime, build and start commands, port and env vars.
-      You review it, set an hourly price and publish.
-    </p>
+{% set onboarding_step = 1 %}
+<section class="px-4 pb-10 pt-8 sm:px-6">
+  {% include "partials/onboarding_progress.html" %}
 
-    <form class="mt-10 text-left"
+  <div class="mx-auto mt-14 max-w-2xl">
+    {# the AI buddy speaks, Duolingo style #}
+    <div class="rise flex items-end gap-4" style="--d: 50ms">
+      <div class="relative shrink-0">
+        <span class="btn-brand grid h-16 w-16 place-items-center rounded-[1.4rem] text-lg font-bold text-white shadow-lg shadow-indigo-500/30">AI</span>
+        <span class="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-emerald-400 ring-4 ring-paper"></span>
+      </div>
+      <div class="relative rounded-2xl border-2 border-black/[.08] bg-white px-5 py-4 text-[15px] leading-relaxed text-slate-700 shadow-sm">
+        <span class="absolute -left-2 bottom-5 h-4 w-4 rotate-45 border-b-2 border-l-2 border-black/[.08] bg-white"></span>
+        <span id="buddy-text">Hi! Paste a public GitHub repo and I'll work out how to deploy it. Takes about 10 seconds.</span>
+      </div>
+    </div>
+
+    <h1 class="rise mt-12 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl" style="--d: 150ms">Which repo should <span class="serif-accent text-indigo-600">people try?</span></h1>
+
+    <form class="rise mt-8" style="--d: 250ms"
           hx-post="/owner/analyze" hx-target="#analyze-result" hx-swap="innerHTML"
           hx-indicator="#analyze-form-state" hx-disabled-elt="find button, find input">
       <label for="repo_url" class="sr-only">GitHub repo URL</label>
-      <div class="flex flex-col gap-2 rounded-2xl bg-white/5 p-2 ring-1 ring-white/15 focus-within:ring-2 focus-within:ring-indigo-400 sm:flex-row">
-        <div class="flex min-w-0 flex-1 items-center gap-3 px-3">
-          <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-slate-400" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
-          <input id="repo_url" name="repo_url" type="url" required autocomplete="off" autofocus
-                 placeholder="https://github.com/owner/repo"
-                 class="min-w-0 flex-1 bg-transparent py-3 font-mono text-sm text-white placeholder:text-slate-500 focus:outline-none">
-        </div>
-        <button type="submit" class="btn-brand rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 disabled:opacity-60">Analyze with AI</button>
+      <div class="flex items-center gap-3 rounded-2xl border-2 border-black/10 bg-white px-4 shadow-sm transition focus-within:border-indigo-500 focus-within:shadow-[0_0_0_4px_rgb(99_102_241/.15)]">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-slate-400" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        <input id="repo_url" name="repo_url" type="url" required autocomplete="off" autofocus
+               placeholder="https://github.com/owner/repo"
+               class="min-w-0 flex-1 bg-transparent py-4 font-mono text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none">
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-2">
+        {% for repo in ["jaydeep-99o/ptp-demo-flask", "jaydeep-99o/ptp-demo-express", "jaydeep-99o/ptp-demo-heal-python"] %}
+        <button type="button" class="repo-example chunky rounded-xl border-2 border-black/10 bg-white px-3 py-1.5 font-mono text-xs text-slate-600 hover:border-indigo-300 hover:text-indigo-700" data-repo="https://github.com/{{ repo }}">{{ repo.split("/")[1] }}</button>
+        {% endfor %}
       </div>
 
       <div id="analyze-form-state">
-        <div class="htmx-indicator glass mt-4 items-center gap-3 rounded-xl p-4 text-sm text-indigo-100">
-          <svg class="h-5 w-5 shrink-0 animate-spin text-indigo-300" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" class="opacity-25"/><path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <div class="htmx-indicator mt-6 items-center gap-3 rounded-2xl border-2 border-indigo-100 bg-indigo-50 p-4 text-sm font-medium text-indigo-800">
+          <span class="flex gap-1"><span class="h-2 w-2 animate-bounce rounded-full bg-indigo-500"></span><span class="h-2 w-2 animate-bounce rounded-full bg-indigo-500 [animation-delay:150ms]"></span><span class="h-2 w-2 animate-bounce rounded-full bg-indigo-500 [animation-delay:300ms]"></span></span>
           <span id="analyze-step">Fetching the repo from GitHub…</span>
         </div>
       </div>
       <div id="analyze-result" class="mt-4 empty:mt-0"></div>
-    </form>
 
-    <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
-      <span>Try:</span>
-      {% for repo in ["jaydeep-99o/ptp-demo-flask", "jaydeep-99o/ptp-demo-express", "render-examples/flask-hello-world"] %}
-      <button type="button" class="repo-example rounded-full px-2.5 py-1 font-mono text-slate-400 ring-1 ring-white/10 hover:text-white hover:ring-white/25" data-repo="https://github.com/{{ repo }}">{{ repo }}</button>
-      {% endfor %}
-    </div>
-    <p class="mt-4 text-xs text-slate-500">Public repos only · analysis takes 5–30 seconds</p>
+      <div class="mt-10 flex items-center justify-between gap-4 border-t-2 border-black/[.06] pt-6">
+        <p class="text-xs text-slate-500">Public repos only · Python, Node or Docker</p>
+        <button type="submit" class="chunky rounded-2xl border-indigo-800 bg-indigo-600 px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white disabled:opacity-60">Check my repo</button>
+      </div>
+    </form>
   </div>
 </section>
 
-<section class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-  {% if my_listings %}
+{% if my_listings %}
+<section class="mx-auto max-w-2xl px-4 pb-20 sm:px-6">
   <div class="flex items-baseline justify-between">
     <h2 class="text-lg font-semibold tracking-tight">Your listings</h2>
-    <a href="/owner/dashboard" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Earnings & payouts →</a>
+    <a href="/owner/dashboard" class="ul-link text-sm font-semibold text-indigo-600">Earnings & payouts →</a>
   </div>
-  <ul class="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+  <ul class="mt-4 space-y-2">
     {% for l in my_listings %}
     <li>
-      <a href="/owner/listings/{{ l.id }}" class="flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50">
+      <a href="/owner/listings/{{ l.id }}" class="spotlight lift flex items-center justify-between gap-4 rounded-2xl border-2 border-black/[.06] bg-white px-5 py-4">
         <div class="min-w-0">
-          <p class="truncate font-medium">{{ l.title }}</p>
+          <p class="truncate font-semibold">{{ l.title }}</p>
           <p class="truncate font-mono text-xs text-slate-400">{{ l.repo_full_name }} · {{ l.price_per_hour|money }}/h</p>
         </div>
         {% if l.is_live %}
-        <span class="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">Live</span>
+        <span class="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">Live</span>
         {% elif l.status == "published" %}
-        <span class="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">Awaiting approval</span>
+        <span class="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700">Awaiting approval</span>
         {% else %}
-        <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">Draft</span>
+        <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">Draft</span>
         {% endif %}
       </a>
     </li>
     {% endfor %}
   </ul>
-  {% else %}
-  <div class="grid gap-4 sm:grid-cols-3">
-    {% for title, text in [("1 · Paste", "Any public GitHub repo with a web app in Python, Node or Docker."),
-                           ("2 · Review", "Check the AI's deploy plan, tweak commands or env vars, set your price."),
-                           ("3 · Get paid", "Buyers rent it for 1–2 hours. You get 80% via PayPal Payouts.")] %}
-    <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-      <p class="font-semibold">{{ title }}</p>
-      <p class="mt-1.5 text-sm leading-relaxed text-slate-600">{{ text }}</p>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 </section>
+{% endif %}
+{% endblock %}
 
+{% block scripts %}
 <script>
   (function () {
-    // Cycle through progress messages while the (single) analyze request runs.
-    const steps = ["Fetching the repo from GitHub…", "Reading README, manifests and entry files…",
-                   "AI is working out the runtime and commands…", "Checking port binding and env vars…",
-                   "Almost there…"];
+    // The buddy narrates while the (single) analyze request runs.
+    const steps = ["Fetching the repo from GitHub…", "Reading your README and manifests…",
+                   "Working out the runtime and commands…", "Making sure it binds Render's $PORT…", "Almost there…"];
+    const buddy = document.getElementById("buddy-text");
     let timer = null;
     document.body.addEventListener("htmx:beforeRequest", () => {
       let i = 0;
       const el = document.getElementById("analyze-step");
       el.textContent = steps[0];
-      timer = setInterval(() => { i = Math.min(i + 1, steps.length - 1); el.textContent = steps[i]; }, 3500);
+      buddy.textContent = "On it! Give me a few seconds to read your code.";
+      timer = setInterval(() => { i = Math.min(i + 1, steps.length - 1); el.textContent = steps[i]; }, 3000);
     });
-    document.body.addEventListener("htmx:afterRequest", () => clearInterval(timer));
+    document.body.addEventListener("htmx:afterRequest", (e) => {
+      clearInterval(timer);
+      if (!e.detail.xhr.getResponseHeader("HX-Redirect")) buddy.textContent = "Hmm, that didn't work. Check the link and try again?";
+    });
     document.querySelectorAll(".repo-example").forEach((b) => b.addEventListener("click", () => {
       const input = document.getElementById("repo_url");
       input.value = b.dataset.repo; input.focus();
+      buddy.textContent = "Nice pick! Hit “Check my repo” when you're ready.";
     }));
   })();
 </script>
