@@ -3,6 +3,7 @@
 import logging
 import re
 import secrets
+import time
 import uuid
 from decimal import Decimal, InvalidOperation
 from typing import Annotated
@@ -105,10 +106,34 @@ def dashboard(request: Request, db: DbSession, owner_key: OwnerKey):
     )
 
 
+_repo_cache: dict[str, tuple[float, list[dict]]] = {}
+REPO_CACHE_SECONDS = 300
+
+
+def _user_repos(github: GitHubClient, login: str) -> list[dict] | None:
+    """The signed-in user's public repos (cached briefly). None if GitHub couldn't be reached."""
+    cached = _repo_cache.get(login)
+    if cached and time.monotonic() - cached[0] < REPO_CACHE_SECONDS:
+        return cached[1]
+    try:
+        repos = github.list_user_repos(login)
+    except GitHubError:
+        return None
+    _repo_cache[login] = (time.monotonic(), repos)
+    return repos
+
+
 @router.get("/new")
-def new_listing(request: Request, db: DbSession, owner_key: OwnerKey):
+def new_listing(
+    request: Request, db: DbSession, owner_key: OwnerKey, github: Annotated[GitHubClient, Depends(get_github)]
+):
     mine = db.scalars(select(Listing).where(Listing.owner_key == owner_key).order_by(Listing.created_at.desc())).all()
-    return templates.TemplateResponse(request, "owner_new.html", {"my_listings": mine})
+    user = request.state.user
+    repos = _user_repos(github, user["login"]) if user else None
+    listed = {listing.repo_full_name.lower() for listing in mine}
+    return templates.TemplateResponse(
+        request, "owner_new.html", {"my_listings": mine, "repos": repos, "listed": listed}
+    )
 
 
 @router.post("/analyze")

@@ -36,6 +36,9 @@ class Settings(BaseSettings):
 
     # GitHub (repo analysis; a token lifts the 60 req/h anonymous limit)
     github_token: SecretStr = SecretStr("")
+    # "Sign in with GitHub" (OAuth App). Login is off unless both are set.
+    github_client_id: str = ""
+    github_client_secret: SecretStr = SecretStr("")
 
     # Nebius Token Factory (OpenAI-compatible)
     nebius_api_key: SecretStr = SecretStr("")

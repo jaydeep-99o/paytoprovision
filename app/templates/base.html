@@ -133,6 +133,15 @@
         <a href="/#how" class="ul-link hidden hover:text-white md:block">How it works</a>
         <a href="/#listings" class="ul-link hidden hover:text-white sm:block">Marketplace</a>
         <a href="/owner/dashboard" class="ul-link hidden hover:text-white sm:block">Dashboard</a>
+        {% set nav_user = request.state.user if request.state and request.state.user is defined else None %}
+        {% if nav_user %}
+        <a href="/owner/dashboard" class="press flex items-center gap-2 rounded-full py-1 pl-1 pr-3 ring-1 ring-white/15 hover:bg-white/5" title="Signed in with GitHub">
+          {% if nav_user.avatar %}<img src="{{ nav_user.avatar }}&s=48" alt="" class="h-7 w-7 rounded-full">{% endif %}
+          <span class="hidden text-white sm:inline">@{{ nav_user.login }}</span>
+        </a>
+        {% elif github_login_enabled() %}
+        <a href="/auth/github/login?next={{ request.url.path }}" class="ul-link hidden hover:text-white sm:block">Sign in</a>
+        {% endif %}
         <a href="/owner/new" class="press shine rounded-full bg-brand-200 px-4 py-2 font-semibold text-brand-700">List your repo</a>
       </div>
     </nav>

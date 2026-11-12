@@ -16,3 +16,12 @@ def money(value: Decimal | float | int | None, currency: str = "USD") -> str:
 
 
 templates.env.filters["money"] = money
+
+
+def _login_enabled() -> bool:
+    from app.auth import login_enabled
+
+    return login_enabled()
+
+
+templates.env.globals["github_login_enabled"] = _login_enabled

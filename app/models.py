@@ -13,7 +13,7 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import Any
 
-from sqlalchemy import Boolean, Float, ForeignKey, Integer, Numeric, String, Text, Uuid
+from sqlalchemy import BigInteger, Boolean, Float, ForeignKey, Integer, Numeric, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base, JSONType, UTCDateTime, utcnow
@@ -171,6 +171,23 @@ class WebhookEvent(Base):
     resource_id: Mapped[str | None] = mapped_column(String(64))
     payload: Mapped[dict[str, Any]] = mapped_column(JSONType)
     received_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+class User(TimestampMixin, Base):
+    """A repo owner who signed in with GitHub. We keep public profile data only: the OAuth
+    token is used once to identify the user and never stored."""
+
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    github_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    login: Mapped[str] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(200), default="")
+    avatar_url: Mapped[str] = mapped_column(String(300), default="")
+    # Listings belong to an owner key; signing in pins this browser to the user's key,
+    # so their listings follow them to any device.
+    owner_key: Mapped[str] = mapped_column(String(64), unique=True)
+    last_login_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
 
 
 class UsageCounter(Base):

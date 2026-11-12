@@ -16,6 +16,7 @@ from app import reaper
 from app.config import get_settings
 from app.db import DbSession
 from app.routes import agent, checkout, internal, owner, pages, webhooks
+from app.routes import auth as auth_routes
 from app.routes.deps import OWNER_COOKIE
 from app.templating import templates
 
@@ -30,6 +31,7 @@ app.include_router(checkout.router)
 app.include_router(agent.router)
 app.include_router(webhooks.router)
 app.include_router(internal.router)
+app.include_router(auth_routes.router)
 
 _OWNER_KEY = re.compile(r"^[A-Za-z0-9_-]{32,64}$")
 
@@ -43,8 +45,10 @@ async def owner_cookie(request: Request, call_next):
     if is_new:
         key = secrets.token_urlsafe(32)
     request.state.owner_key = key
+    request.state.user = auth_routes.current_user(request)
     response = await call_next(request)
-    if is_new:
+    already_set = any(h.startswith(f"{OWNER_COOKIE}=") for h in response.headers.getlist("set-cookie"))
+    if is_new and not already_set:
         response.set_cookie(
             OWNER_COOKIE,
             key,

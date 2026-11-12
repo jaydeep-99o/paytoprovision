@@ -150,6 +150,24 @@ class GitHubClient:
             raise GitHubError(f"GitHub returned an error ({resp.status_code}).")
         return resp
 
+    def list_user_repos(self, login: str, *, limit: int = 60) -> list[dict[str, Any]]:
+        """A user's public, non-archived repos, most recently pushed first."""
+        resp = self._get(f"/users/{login}/repos", params={"type": "owner", "sort": "pushed", "per_page": limit})
+        return [
+            {
+                "full_name": r["full_name"],
+                "name": r["name"],
+                "html_url": r["html_url"],
+                "description": r.get("description") or "",
+                "language": r.get("language") or "",
+                "stars": r.get("stargazers_count", 0),
+                "fork": bool(r.get("fork")),
+                "pushed_at": (r.get("pushed_at") or "")[:10],
+            }
+            for r in resp.json()
+            if not r.get("archived") and not r.get("private")
+        ]
+
     def get_repo(self, ref: RepoRef) -> dict[str, Any]:
         return self._get(f"/repos/{ref.full_name}").json()
 
