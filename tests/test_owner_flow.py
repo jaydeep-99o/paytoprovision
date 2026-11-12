@@ -61,7 +61,7 @@ def test_publish_allowlisted_repo_goes_live_on_home(client):
     listing_page = client.get(resp.headers["location"], headers=HTML)
     assert "Published! Your listing is live" in listing_page.text and "$3.50" in listing_page.text
     home = client.get("/", headers=HTML)
-    assert "Demo App" in home.text and "1 listed" in home.text
+    assert "Demo App" in home.text and "1 available" in home.text
 
 
 def test_publish_requires_payout_email_and_valid_price(client):
@@ -84,7 +84,7 @@ def test_non_allowlisted_repo_awaits_approval(client, db_session_factory):
     assert resp.status_code == 303
 
     assert "admin needs to approve" in client.get(resp.headers["location"], headers=HTML).text
-    assert "0 listed" in client.get("/", headers=HTML).text
+    assert "0 available" in client.get("/", headers=HTML).text
     with db_session_factory() as db:
         listing = db.scalar(select(Listing))
         assert listing.status == "published" and not listing.approved

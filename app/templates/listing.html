@@ -1,6 +1,34 @@
 {% extends "base.html" %}
 {% block title %}{{ listing.title }} · PayToProvision{% endblock %}
 {% block content %}
+<section class="band">
+  <div class="mx-auto max-w-6xl px-4 pb-14 pt-8 sm:px-6">
+    <a href="/#listings" class="text-sm text-slate-400 hover:text-white">← All demos</a>
+    <div class="mt-6 flex flex-col justify-between gap-8 md:flex-row md:items-end">
+      <div class="min-w-0">
+        <div class="flex flex-wrap gap-2">
+          {% if listing.stack %}<span class="glass rounded-full px-2.5 py-1 text-xs font-medium text-slate-200">{{ listing.stack }}</span>{% endif %}
+          <span class="rounded-full bg-indigo-500/15 px-2.5 py-1 text-xs font-medium text-indigo-200 ring-1 ring-indigo-400/30">AI-prepared deploy</span>
+          <span class="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300 ring-1 ring-emerald-400/25">Self-healing · auto refund</span>
+        </div>
+        <h1 class="mt-5 text-4xl font-bold tracking-[-0.03em] sm:text-5xl">{{ listing.title }}</h1>
+        <p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate-400">{{ listing.summary }}</p>
+        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-400">
+          <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-mono hover:text-white">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+            {{ listing.repo_full_name }}
+          </a>
+          {% if listing.owner_name %}<span>Listed by <span class="text-slate-200">{{ listing.owner_name }}</span></span>{% endif %}
+        </div>
+      </div>
+      <div class="glass shrink-0 rounded-2xl px-6 py-4 md:text-right">
+        <p class="text-3xl font-bold tracking-tight">{{ listing.price_per_hour|money }}</p>
+        <p class="text-xs text-slate-400">per hour · up to {{ hours_options|length }}h</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
   {% if just_published %}
     {% if listing.is_live %}
@@ -14,80 +42,63 @@
   <div class="mb-6 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700">Checkout cancelled. You have not been charged.</div>
   {% endif %}
 
-  <div class="grid gap-8 lg:grid-cols-3">
-    <div class="lg:col-span-2">
-      <div class="flex flex-wrap items-center gap-2">
-        {% if listing.stack %}<span class="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white">{{ listing.stack }}</span>{% endif %}
-        <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-100">AI-prepared deploy</span>
-      </div>
-      <h1 class="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">{{ listing.title }}</h1>
-      <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600">
-        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
-        {{ listing.repo_full_name }}
-      </a>
-      {% if listing.owner_name %}<p class="mt-1 text-sm text-slate-500">Listed by {{ listing.owner_name }}</p>{% endif %}
-
-      <div class="mt-6 rounded-2xl bg-white p-6 ring-1 ring-slate-200">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">About this app</h2>
-        <p class="mt-2 leading-relaxed text-slate-700">{{ listing.summary }}</p>
-      </div>
-
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
       {% if listing.is_live %}
-      <div id="agent" class="mt-4 overflow-hidden rounded-2xl bg-white ring-1 ring-indigo-200">
-        <div class="flex items-center gap-3 border-b border-indigo-100 bg-indigo-50/60 px-5 py-3">
-          <span class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-[11px] font-bold text-white">AI</span>
+      <div id="agent" class="order-1 min-w-0 lg:col-start-1 lg:row-start-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="flex items-center gap-3 bg-gradient-to-r from-indigo-600 via-indigo-600 to-cyan-600 px-5 py-4 text-white">
+          <span class="relative grid h-10 w-10 place-items-center rounded-xl bg-white/15 text-xs font-bold ring-1 ring-white/25">AI
+            <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-indigo-600"></span>
+          </span>
           <div class="min-w-0">
-            <p class="text-sm font-semibold">Checkout agent</p>
-            <p class="text-xs text-slate-500">Ask about the app, or say how long you want to try it. Orders via the PayPal Agent Toolkit.</p>
+            <p class="font-semibold">Checkout agent</p>
+            <p class="text-xs text-indigo-100">Ask anything, or say how long you want to try it. Orders via the PayPal Agent Toolkit.</p>
           </div>
         </div>
-        <div id="agent-log" class="max-h-[26rem] space-y-3 overflow-y-auto px-5 py-4 text-sm" aria-live="polite">
-          <div class="flex"><p class="max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-slate-100 px-3.5 py-2.5 text-slate-800" id="agent-intro">Hi! I can tell you about {{ listing.title }} and set up a private live demo for you. How long would you like to try it?</p></div>
+        <div id="agent-log" class="max-h-[28rem] min-h-[11rem] space-y-3 overflow-y-auto bg-slate-50/60 px-5 py-5 text-sm" aria-live="polite">
+          <div class="flex"><p class="max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 text-slate-800 shadow-sm ring-1 ring-slate-200/70" id="agent-intro">Hi! I can tell you about {{ listing.title }} and set up a private live demo for you. How long would you like to try it?</p></div>
         </div>
-        <div id="agent-chips" class="flex flex-wrap gap-2 px-5 pb-3">
+        <div id="agent-chips" class="flex flex-wrap gap-2 bg-slate-50/60 px-5 pb-4">
           {% for q in ["What does this app do?", "I'd like to try it for 1 hour", "How much for 2 hours?"] %}
-          <button type="button" class="agent-chip rounded-full bg-white px-3 py-1.5 text-xs font-medium text-indigo-700 ring-1 ring-indigo-200 hover:bg-indigo-50">{{ q }}</button>
+          <button type="button" class="agent-chip rounded-full bg-white px-3 py-1.5 text-xs font-medium text-indigo-700 shadow-sm ring-1 ring-indigo-200 hover:bg-indigo-50">{{ q }}</button>
           {% endfor %}
         </div>
-        <form id="agent-form" class="flex gap-2 border-t border-slate-100 p-3">
+        <form id="agent-form" class="flex gap-2 border-t border-slate-200/80 bg-white p-3">
           <input id="agent-input" maxlength="500" autocomplete="off" placeholder="Message the checkout agent…"
-                 class="min-w-0 flex-1 rounded-xl border-0 bg-slate-50 px-3.5 py-2.5 text-sm ring-1 ring-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-          <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50">Send</button>
+                 class="min-w-0 flex-1 rounded-xl border-0 bg-slate-100 px-3.5 py-2.5 text-sm placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <button class="btn-brand rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">Send</button>
         </form>
       </div>
       {% endif %}
 
-      <div class="mt-4 rounded-2xl bg-white p-6 ring-1 ring-slate-200">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">How it gets deployed</h2>
-        <ol class="mt-4 space-y-3 text-sm">
-          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">1</span><span>You pay with PayPal (sandbox).</span></li>
-          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">2</span>
-            <span>A fresh copy is deployed on Render ({{ listing.deploy_config.get("runtime") }}):
-              <code class="mt-1 block rounded-lg bg-slate-900 px-3 py-2 font-mono text-xs leading-relaxed text-slate-100">$ {{ listing.deploy_config.get("build_command") or "docker build" }}<br>$ {{ listing.deploy_config.get("start_command") or "docker run" }}</code>
-            </span></li>
-          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">3</span><span>If the build fails, AI reads the logs, fixes the config and retries. If it still can't, you're refunded automatically.</span></li>
-          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold">4</span><span>You get a private live link with a countdown. When time's up, it's deleted.</span></li>
+      <div class="order-3 min-w-0 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm lg:col-start-1 {{ 'lg:row-start-2' if listing.is_live else 'lg:row-start-1' }}">
+        <h2 class="font-semibold">What happens when you pay</h2>
+        <ol class="mt-5 space-y-5 text-sm">
+          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-950 font-mono text-xs font-semibold text-white">1</span><div><p class="font-medium">PayPal (sandbox) takes the payment</p><p class="mt-0.5 text-slate-500">Captured on our server the moment you approve.</p></div></li>
+          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-950 font-mono text-xs font-semibold text-white">2</span>
+            <div class="min-w-0 flex-1"><p class="font-medium">A fresh copy is deployed on Render <span class="font-normal text-slate-500">({{ listing.deploy_config.get("runtime") }})</span></p>
+              <div class="mt-2 overflow-x-auto rounded-xl bg-ink-950 px-4 py-3 font-mono text-xs leading-relaxed text-slate-300"><span class="text-slate-500">$</span> {{ listing.deploy_config.get("build_command") or "docker build" }}<br><span class="text-slate-500">$</span> {{ listing.deploy_config.get("start_command") or "docker run" }}</div></div></li>
+          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white">AI</span><div><p class="font-medium">If it fails, AI fixes it</p><p class="mt-0.5 text-slate-500">It reads the logs, fixes the config and redeploys. If it still can't, you're refunded automatically.</p></div></li>
+          <li class="flex gap-4"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emerald-500 font-mono text-xs font-semibold text-white">✓</span><div><p class="font-medium">Your private live link</p><p class="mt-0.5 text-slate-500">With a countdown. When time's up, it's deleted.</p></div></li>
         </ol>
       </div>
-    </div>
 
-    <aside>
-      <div class="rounded-2xl bg-white p-6 shadow-xl shadow-slate-900/5 ring-1 ring-slate-200 lg:sticky lg:top-24">
-        <p><span class="text-3xl font-extrabold">{{ listing.price_per_hour|money }}</span> <span class="text-slate-500">/ hour</span></p>
-        <fieldset class="mt-5">
-          <legend class="text-sm font-medium">How long?</legend>
-          <div class="mt-2 grid grid-cols-{{ hours_options|length }} gap-2">
+    <aside class="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+      <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-900/5 lg:sticky lg:top-24">
+        <p class="text-sm font-semibold">Rent a private copy</p>
+        <fieldset class="mt-4">
+          <legend class="text-xs font-medium text-slate-500">How long?</legend>
+          <div class="mt-2 grid grid-cols-{{ hours_options|length }} gap-1 rounded-xl bg-slate-100 p-1">
             {% for h in hours_options %}
             <label class="cursor-pointer">
               <input type="radio" name="hours" value="{{ h }}" class="peer sr-only" {% if loop.first %}checked{% endif %}>
-              <span class="block rounded-xl px-3 py-2.5 text-center text-sm font-medium ring-1 ring-slate-200 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:ring-indigo-600">{{ h }} hour{{ "s" if h > 1 }}</span>
+              <span class="block rounded-lg px-3 py-2 text-center text-sm font-medium text-slate-600 transition peer-checked:bg-white peer-checked:text-slate-900 peer-checked:shadow-sm">{{ h }} hour{{ "s" if h > 1 }}</span>
             </label>
             {% endfor %}
           </div>
         </fieldset>
-        <div class="mt-5 flex items-baseline justify-between border-t border-slate-100 pt-4 text-sm">
-          <span class="text-slate-500">Total</span>
-          <span id="total" class="text-lg font-bold" data-price="{{ listing.price_per_hour }}">{{ listing.price_per_hour|money }}</span>
+        <div class="mt-5 flex items-baseline justify-between">
+          <span class="text-sm text-slate-500">Total</span>
+          <span id="total" class="text-2xl font-bold tracking-tight" data-price="{{ listing.price_per_hour }}">{{ listing.price_per_hour|money }}</span>
         </div>
         {% if listing.is_live and paypal_client_id %}
         <div id="checkout-msg" class="mt-5 hidden rounded-xl px-3.5 py-2.5 text-sm" role="status"></div>
@@ -97,7 +108,12 @@
         {% else %}
         <button type="button" disabled class="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-500">Payments aren't configured</button>
         {% endif %}
-        <p class="mt-3 text-center text-xs text-slate-500">PayPal sandbox: use a sandbox buyer account. No real money moves.</p>
+        <ul class="mt-5 space-y-2 border-t border-slate-100 pt-5 text-sm text-slate-600">
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Private URL, live in ~1–3 minutes</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> AI self-healing if the build fails</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Full refund if it can't start</li>
+        </ul>
+        <p class="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs text-amber-800">PayPal sandbox: use a sandbox buyer account. No real money moves.</p>
       </div>
     </aside>
   </div>
@@ -127,8 +143,8 @@
     function bubble(role, text, tools) {
       const row = el("div", role === "user" ? "flex justify-end" : "flex flex-col items-start");
       row.appendChild(el("p", role === "user"
-        ? "max-w-[85%] whitespace-pre-line rounded-2xl rounded-tr-sm bg-indigo-600 px-3.5 py-2.5 text-white"
-        : "max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-slate-100 px-3.5 py-2.5 text-slate-800", text));
+        ? "btn-brand max-w-[85%] whitespace-pre-line rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-white shadow-sm"
+        : "max-w-[85%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 text-slate-800 shadow-sm ring-1 ring-slate-200/70", text));
       if (tools && tools.length) {
         const chips = el("div", "mt-1 flex flex-wrap gap-1");
         [...new Set(tools)].forEach((t) => chips.appendChild(el("span", "rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[10px] text-indigo-600", "🔧 " + t)));

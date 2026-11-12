@@ -9,30 +9,35 @@
 {% set mono_cls = input_cls ~ " font-mono text-[13px]" %}
 
 {% block content %}
-<section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-  <a href="/owner/new" class="text-sm font-medium text-slate-500 hover:text-slate-900">← Your listings</a>
-  <div class="mt-3 flex flex-wrap items-start justify-between gap-4">
-    <div class="min-w-0">
-      <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ listing.title }}</h1>
-      <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600">
-        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
-        {{ listing.repo_full_name }}{% if listing.branch %} · {{ listing.branch }}{% endif %}
-      </a>
-    </div>
-    <div class="flex items-center gap-2">
-      {% if listing.is_live %}
-      <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">Live</span>
-      {% elif listing.status == "published" %}
-      <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">Awaiting approval</span>
-      {% else %}
-      <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Draft</span>
-      {% endif %}
-      {% if listing.status == "published" %}
-      <a href="/l/{{ listing.slug }}" class="rounded-lg px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50">View listing →</a>
-      {% endif %}
+<section class="band">
+  <div class="mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-6">
+    <a href="/owner/new" class="text-sm text-slate-400 hover:text-white">← Your listings</a>
+    <div class="mt-5 flex flex-wrap items-end justify-between gap-4">
+      <div class="min-w-0">
+        <p class="font-mono text-xs uppercase tracking-widest text-slate-500">Review the AI's deploy plan</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">{{ listing.title }}</h1>
+        <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="mt-3 inline-flex items-center gap-1.5 font-mono text-sm text-slate-400 hover:text-white">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          {{ listing.repo_full_name }}{% if listing.branch %} · {{ listing.branch }}{% endif %}
+        </a>
+      </div>
+      <div class="flex items-center gap-2">
+        {% if listing.is_live %}
+        <span class="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-400/30">Live</span>
+        {% elif listing.status == "published" %}
+        <span class="rounded-full bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-300 ring-1 ring-amber-400/30">Awaiting approval</span>
+        {% else %}
+        <span class="glass rounded-full px-3 py-1 text-xs font-semibold text-slate-300">Draft</span>
+        {% endif %}
+        {% if listing.status == "published" %}
+        <a href="/l/{{ listing.slug }}" class="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-ink-950 hover:bg-indigo-50">View listing →</a>
+        {% endif %}
+      </div>
     </div>
   </div>
+</section>
 
+<section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
   {% if saved %}
   <div class="mt-5 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 ring-1 ring-emerald-200">Saved.</div>
   {% endif %}
@@ -40,12 +45,12 @@
   <div class="mt-5 rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800 ring-1 ring-rose-200">Fix the highlighted fields below.</div>
   {% endif %}
 
-  <div class="mt-8 grid gap-6 lg:grid-cols-5">
+  <div class="grid gap-6 lg:grid-cols-5">
     {# ---------------------------------------------------------------- AI analysis #}
     <aside class="lg:col-span-2">
-      <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200 lg:sticky lg:top-24">
+      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
         <div class="flex items-center gap-2">
-          <span class="grid h-7 w-7 place-items-center rounded-lg bg-indigo-600 text-[11px] font-bold text-white">AI</span>
+          <span class="btn-brand grid h-8 w-8 place-items-center rounded-lg text-[11px] font-bold text-white">AI</span>
           <h2 class="font-semibold">What the AI found</h2>
         </div>
 
@@ -117,7 +122,7 @@
 
     {# ---------------------------------------------------------------- Editable form #}
     <form method="post" action="/owner/listings/{{ listing.id }}" class="space-y-6 lg:col-span-3">
-      <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
         <h2 class="font-semibold">Listing</h2>
         <div class="mt-4 space-y-4">
           <div>
@@ -153,7 +158,7 @@
         </div>
       </div>
 
-      <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
         <div class="flex items-center justify-between">
           <h2 class="font-semibold">Deploy plan</h2>
           <span class="text-xs text-slate-500">Render free instance · binds <code class="rounded bg-slate-100 px-1">$PORT</code></span>
@@ -213,7 +218,7 @@
         </div>
       </div>
 
-      <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
         {% if allowlisted %}
         <p class="flex items-center gap-2 text-sm text-emerald-700"><span class="grid h-5 w-5 place-items-center rounded-full bg-emerald-500 text-xs text-white">✓</span>This repo is on the allowlist: it goes live as soon as you publish.</p>
         {% else %}
@@ -221,10 +226,10 @@
         {% endif %}
         <div class="mt-4 flex flex-wrap gap-3">
           {% if listing.status == "published" %}
-          <button name="action" value="publish" class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Save changes</button>
+          <button name="action" value="publish" class="btn-brand rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm">Save changes</button>
           <button name="action" value="unpublish" class="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">Unpublish</button>
           {% else %}
-          <button name="action" value="publish" class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Publish listing</button>
+          <button name="action" value="publish" class="btn-brand rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm">Publish listing</button>
           <button name="action" value="save" class="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">Save draft</button>
           {% endif %}
         </div>
