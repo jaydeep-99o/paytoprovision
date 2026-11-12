@@ -1,6 +1,6 @@
 # PayToProvision
 
-[![CI](https://github.com/jaydeep-99o/paytoprovision/actions/workflows/ci.yml/badge.svg)](https://github.com/jaydeep-99o/paytoprovision/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/jaydeep-99o/paytoprovision/actions/workflows/ci.yml/badge.svg)](https://github.com/jaydeep-99o/paytoprovision/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Turn any GitHub repo into a paid live demo.**
@@ -28,7 +28,8 @@ is up the environment is deleted and the owner is **paid out via PayPal Payouts*
      diagnoses it, adds the package to the build command and redeploys: live in about 2.5 minutes.
    - **Invoice Studio** (`ptp-demo-never-builds`) depends on a private package. The AI explains it can't be
      fixed without code changes and the payment is **refunded automatically** within ~30 seconds.
-6. **As an owner:** *List your repo* → paste any public GitHub repo → see the AI's deploy plan (confidence,
+6. **As an owner:** *List your repo* → **Sign in with GitHub** and pick one of your repos (or paste any public
+   GitHub link) → see the AI's deploy plan (confidence,
    port fix, env vars, files it read) → set a price and publish. The *Dashboard* shows sessions, earnings and payouts.
    Repos outside the allowlist can be analyzed but need admin approval before buyers see them.
 
@@ -152,11 +153,43 @@ is framework-agnostic. So orders are created by the toolkit's own `create_order`
   previews, resumes deploys interrupted by a restart, retries refunds, pays owners, and removes orphan services
   (only with the `ptp-` prefix, only older than 30 minutes).
 
+## Sign in with GitHub
+
+Owners can sign in with a GitHub OAuth App to pick a repo from their own list instead of pasting a link, and to
+manage their listings from any device ([app/auth.py](app/auth.py), [app/routes/auth.py](app/routes/auth.py)).
+
+- **No OAuth scopes.** The token can only read the public profile; it's used once in the callback and discarded.
+  The repo list comes from GitHub's public API with the server's own token.
+- CSRF `state` in a 10-minute signed cookie; the session cookie is HMAC-SHA256 signed, HttpOnly, SameSite=Lax and
+  Secure in production. `next=` only accepts local paths.
+- Listings follow the account: the first sign-in adopts the browser's listings, a sign-in on another device merges
+  that device's listings in. Signing out rotates the browser's owner key.
+- Optional: without `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` the sign-in button is hidden and pasting a link works
+  as before.
+
+## CI/CD
+
+[.github/workflows/ci.yml](.github/workflows/ci.yml) runs on every push and pull request:
+
+1. **test**: ruff lint and format check, `alembic upgrade head` + `alembic check` (models and migrations agree),
+   pytest.
+2. **terraform**: `fmt -check`, `init -backend=false`, `validate` for [infra/terraform](infra/terraform).
+3. **deploy** (pushes to `main` only, after both pass): [scripts/deploy.py](scripts/deploy.py) asks the Render API
+   to deploy *exactly that commit*, waits for it to go live (on failure it prints the build and app logs into the
+   job summary and fails the run), then **smoke-tests production**: `/healthz` must report the new commit and the
+   key pages must return 200.
+
+Render's own auto-deploy is off (`autoDeployTrigger: "off"` in [render.yaml](render.yaml)), so nothing reaches
+production without a green pipeline. Deploys share one concurrency group and never cancel each other mid-flight.
+Secrets needed in the repo (Settings → Secrets and variables → Actions): `RENDER_API_KEY`, `RENDER_OWNER_ID`.
+
 ## Guardrails
 
 Allowlisted repos only go live without admin approval (`ALLOWED_REPOS`) · max 3 concurrent previews · max 2 hours
-per session · preview services prefixed `ptp-` · analysis and chat rate-limited per IP · secrets only in env vars
-(`SecretStr`, never logged) · sandbox-only PayPal.
+per session · preview services prefixed `ptp-` · **global daily budgets for AI calls and deploys**
+(`AI_DAILY_CALL_LIMIT`, `DEPLOY_DAILY_LIMIT`) so credit can't be drained · analysis, chat and orders rate-limited
+per IP · security headers (CSP frame-ancestors, nosniff, referrer policy) · secrets only in env vars (`SecretStr`,
+never logged) · sandbox-only PayPal.
 
 ## Run locally
 
@@ -177,7 +210,7 @@ production previews.
 python -m scripts.check_env      # verifies DB, Render, GitHub, Nebius and PayPal credentials (prints no secrets)
 python -m scripts.render_smoke   # creates a free Render service, waits for live, hits it, deletes it
 python -m scripts.paypal_webhook https://your-app.onrender.com   # creates the PayPal webhook, prints its ID
-pytest                           # 139 tests; PayPal, Render, GitHub and the LLM are mocked
+pytest                           # 161 tests; PayPal, Render, GitHub and the LLM are mocked
 ```
 
 > **Windows note:** if `import sqlalchemy` fails with *"An Application Control policy has blocked this file"*,
@@ -189,7 +222,11 @@ pytest                           # 139 tests; PayPal, Render, GitHub and the LLM
 1. Render Dashboard → **New → Blueprint** → this repo. Fill in the prompted secrets (`RENDER_API_KEY`,
    `NEBIUS_API_KEY`, `PAYPAL_CLIENT_ID`, …). The database and `DATABASE_URL` are created for you.
 2. `python -m scripts.paypal_webhook https://<your-app>.onrender.com` and set `PAYPAL_WEBHOOK_ID` on Render.
-3. Add the app's `INTERNAL_REAP_TOKEN` as a GitHub Actions secret for the reaper cron.
+3. Add the app's `INTERNAL_REAP_TOKEN` as a GitHub Actions secret for the reaper cron, plus `RENDER_API_KEY` and
+   `RENDER_OWNER_ID` for the deploy job, and set the service ID in [.github/workflows/ci.yml](.github/workflows/ci.yml).
+4. Optional, GitHub sign-in: GitHub → Settings → Developer settings → **OAuth Apps** → New. Homepage
+   `https://<your-app>.onrender.com`, callback `https://<your-app>.onrender.com/auth/github/callback`. Set
+   `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` on Render.
 
 Or use Terraform: `cd infra/terraform && cp terraform.tfvars.example terraform.tfvars && terraform apply`.
 
@@ -198,7 +235,9 @@ Or use Terraform: `cd infra/terraform && cp terraform.tfvars.example terraform.t
 ```
 app/
   main.py              app wiring, owner cookie, error pages, /healthz
-  models.py            Listing, PreviewSession (+ state machine), TimelineEvent, WebhookEvent, Payout
+  models.py            Listing, PreviewSession (+ state machine), TimelineEvent, WebhookEvent, Payout, User
+  auth.py              signed cookies + GitHub OAuth client (sign in with GitHub)
+  budget.py            global daily budgets for AI calls and deploys
   ai/llm.py            Nebius chat client: strict JSON (validate, retry once), tools, thinking toggle
   ai/analyzer.py       repo analyzer + $PORT guardrails
   ai/healer.py         log diagnosis + fix guardrails
@@ -209,13 +248,13 @@ app/
   provisioner.py       deploy → heal → live / refund (re-entrant by state)
   reaper.py            expiry, orphans, resumes, refund retries, payouts
   render_client.py     typed Render API client (retries, backoff, logs, cancel)
-  github_client.py     repo metadata, tree and key files
-  routes/              pages, owner flow, checkout, agent, webhooks, internal
+  github_client.py     repo metadata, tree, key files and a user's public repos
+  routes/              pages, owner flow, GitHub sign-in, checkout, agent, webhooks, internal
   templates/           Jinja2 + Tailwind + HTMX
 alembic/               migrations
 demo-repos/            the 4 demo apps (each also its own public repo)
 infra/terraform/       Render stack as Terraform
-scripts/               check_env, render_smoke, paypal_webhook
+scripts/               check_env, render_smoke, paypal_webhook, deploy (CD: commit-pinned deploy + smoke test)
 tests/                 pytest
 ```
 
