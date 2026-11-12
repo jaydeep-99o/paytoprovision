@@ -1,11 +1,15 @@
-# Lint, migration check and tests on every push and pull request.
-# PayPal, Render, GitHub and the LLM are mocked in tests, so no secrets are needed.
-name: CI
+# CI/CD: lint, migration check, tests and Terraform validation on every push and PR.
+# On main, once they all pass, the same commit is deployed to Render and smoke-tested.
+# Render's own auto-deploy is off (render.yaml), so nothing reaches production without green CI.
+#
+# Secrets (repo Settings -> Secrets and variables -> Actions): RENDER_API_KEY, RENDER_OWNER_ID
+name: CI/CD
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -48,3 +52,32 @@ jobs:
       - run: terraform fmt -check -recursive
       - run: terraform init -backend=false -input=false
       - run: terraform validate
+
+  deploy:
+    needs: [test, terraform]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment:
+      name: production
+      url: https://paytoprovision.onrender.com
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: pip install -r requirements.txt
+      - name: Deploy this commit to Render and smoke-test it
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
+        run: |
+          python -m scripts.deploy \
+            --service-id srv-dbm04gm1egvs73at7rug \
+            --commit "${{ github.sha }}" \
+            --url https://paytoprovision.onrender.com

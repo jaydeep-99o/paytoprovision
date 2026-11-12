@@ -11,7 +11,8 @@ services:
     # Migrations run on boot: free instances have no pre-deploy step.
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
     healthCheckPath: /healthz
-    autoDeployTrigger: commit
+    # Deploys are triggered by GitHub Actions after CI passes (.github/workflows/ci.yml).
+    autoDeployTrigger: "off"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.10

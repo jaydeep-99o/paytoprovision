@@ -347,12 +347,13 @@ class RenderClient:
     def get_deploy(self, service_id: str, deploy_id: str) -> RenderDeploy:
         return RenderDeploy.from_api(self._request("GET", f"/services/{service_id}/deploys/{deploy_id}"))
 
-    def trigger_deploy(self, service_id: str, *, clear_cache: bool = False) -> RenderDeploy:
-        data = self._request(
-            "POST",
-            f"/services/{service_id}/deploys",
-            json={"clearCache": "clear" if clear_cache else "do_not_clear"},
-        )
+    def trigger_deploy(
+        self, service_id: str, *, clear_cache: bool = False, commit_id: str | None = None
+    ) -> RenderDeploy:
+        body: dict[str, Any] = {"clearCache": "clear" if clear_cache else "do_not_clear"}
+        if commit_id:
+            body["commitId"] = commit_id
+        data = self._request("POST", f"/services/{service_id}/deploys", json=body)
         if data:  # 201 returns the deploy
             return RenderDeploy.from_api(data)
         # 202 (queued) has no body; the new deploy is the latest one.

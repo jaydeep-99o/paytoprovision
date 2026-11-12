@@ -1,6 +1,7 @@
 """FastAPI entry point: app wiring, owner cookie, error pages, health check."""
 
 import logging
+import os
 import re
 import secrets
 
@@ -82,4 +83,4 @@ def healthz(db: DbSession):
     except SQLAlchemyError:
         log.exception("health check: database unreachable")
         return JSONResponse({"status": "error", "db": "unreachable"}, status_code=503)
-    return {"status": "ok", "db": "ok"}
+    return {"status": "ok", "db": "ok", "commit": os.environ.get("RENDER_GIT_COMMIT", "")}
