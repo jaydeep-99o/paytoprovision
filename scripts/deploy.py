@@ -15,6 +15,7 @@ import time
 
 import httpx
 
+from app.config import get_settings
 from app.render_client import RenderClient, RenderDeploy
 
 HEALTH_TIMEOUT_SECONDS = 300
@@ -38,6 +39,22 @@ def main() -> int:
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     started = time.monotonic()
+
+    settings = get_settings()
+    missing = [
+        name
+        for name, value in (
+            ("RENDER_API_KEY", settings.render_api_key.get_secret_value()),
+            ("RENDER_OWNER_ID", settings.render_owner_id),
+        )
+        if not value
+    ]
+    if missing:
+        summary(
+            f"::error::Missing GitHub Actions secret(s): {', '.join(missing)}. "
+            "Add them under Settings > Secrets and variables > Actions, then re-run this job."
+        )
+        return 1
 
     with RenderClient.from_settings() as render:
         deploy = render.trigger_deploy(args.service_id, commit_id=args.commit)
