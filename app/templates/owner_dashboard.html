@@ -10,7 +10,7 @@
 {% block content %}
 <div class="bg-white">
   {# cover + icon, Notion style #}
-  <div class="h-36 bg-[linear-gradient(120deg,#c7d2fe_0%,#bae6fd_45%,#fde68a_100%)] sm:h-44"></div>
+  <div class="h-36 bg-[linear-gradient(120deg,#ffcab3_0%,#f9ecc9_50%,#f3d88e_100%)] sm:h-44"></div>
   <div class="mx-auto max-w-5xl px-4 pb-20 sm:px-10">
     <div class="-mt-11 grid h-[78px] w-[78px] place-items-center rounded-2xl bg-white text-5xl shadow-sm ring-1 ring-black/5">📈</div>
     <h1 class="mt-5 text-4xl font-bold tracking-tight">Dashboard</h1>
@@ -20,8 +20,8 @@
       {% set owner_email = (listings|map(attribute="owner_paypal_email")|select|first) or "set on each listing" %}
       {% for icon, label, value in [("✉️", "Payouts to", owner_email), ("💸", "Your share", (100 - fee_percent) ~ "% of every session"), ("🏦", "Paid via", "PayPal Payouts (sandbox)")] %}
       <div class="flex items-center gap-2 rounded-md px-1 py-1 hover:bg-black/[.03]">
-        <dt class="flex w-36 shrink-0 items-center gap-2 text-slate-500"><span class="text-xs">{{ icon }}</span>{{ label }}</dt>
-        <dd class="min-w-0 truncate text-slate-800">{{ value }}</dd>
+        <dt class="flex w-36 shrink-0 items-center gap-2 text-stone-500"><span class="text-xs">{{ icon }}</span>{{ label }}</dt>
+        <dd class="min-w-0 truncate text-stone-800">{{ value }}</dd>
       </div>
       {% endfor %}
     </dl>
@@ -39,9 +39,9 @@
       <div data-reveal class="flex gap-3 rounded-lg bg-[#f7f6f3] p-4">
         <span class="text-xl leading-none">{{ icon }}</span>
         <div class="min-w-0">
-          <p class="text-sm text-slate-500">{{ label }}</p>
+          <p class="text-sm text-stone-500">{{ label }}</p>
           <p class="mt-0.5 text-2xl font-semibold tabular-nums tracking-tight">{{ value }}</p>
-          <p class="mt-0.5 text-xs text-slate-400">{{ hint }}</p>
+          <p class="mt-0.5 text-xs text-stone-400">{{ hint }}</p>
         </div>
       </div>
       {% endfor %}
@@ -50,16 +50,16 @@
     {# listings database #}
     <div class="mt-12 flex items-center justify-between">
       <h2 class="flex items-center gap-2 text-xl font-semibold tracking-tight"><span>📦</span> Listings</h2>
-      <a href="/owner/new" class="press rounded-md bg-[#2383e2] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#0077d4]">New</a>
+      <a href="/owner/new" class="press rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700">New</a>
     </div>
     <div class="mt-2 flex gap-4 border-b border-black/[.08] text-sm">
-      <span class="-mb-px border-b-2 border-slate-900 pb-2 font-medium">▦ Table</span>
-      <span class="pb-2 text-slate-400">{{ listings|length }} items</span>
+      <span class="-mb-px border-b-2 border-stone-900 pb-2 font-medium">▦ Table</span>
+      <span class="pb-2 text-stone-400">{{ listings|length }} items</span>
     </div>
     {% if listings %}
     <div class="overflow-x-auto">
       <table class="w-full min-w-[620px] text-left text-sm">
-        <thead class="text-slate-500">
+        <thead class="text-stone-500">
           <tr class="border-b border-black/[.08]">
             <th class="whitespace-nowrap py-2 pr-3 font-normal">Aa Name</th><th class="whitespace-nowrap px-3 py-2 font-normal">◎ Status</th><th class="whitespace-nowrap px-3 py-2 font-normal">≡ Stack</th>
             <th class="whitespace-nowrap px-3 py-2 text-right font-normal"># Price/h</th><th class="whitespace-nowrap px-3 py-2 text-right font-normal"># Sold</th><th class="whitespace-nowrap py-2 pl-3 text-right font-normal"># Earned</th>
@@ -68,7 +68,7 @@
         <tbody>
           {% for l in listings %}
           <tr class="border-b border-black/[.06] hover:bg-black/[.02]">
-            <td class="py-2.5 pr-3"><a href="/owner/listings/{{ l.id }}" class="font-medium underline decoration-black/15 underline-offset-4 hover:decoration-black/50">{{ l.title }}</a><p class="font-mono text-xs text-slate-400">{{ l.repo_full_name }}</p></td>
+            <td class="py-2.5 pr-3"><a href="/owner/listings/{{ l.id }}" class="font-medium underline decoration-black/15 underline-offset-4 hover:decoration-black/50">{{ l.title }}</a><p class="font-mono text-xs text-stone-400">{{ l.repo_full_name }}</p></td>
             <td class="px-3 py-2.5">{% if l.is_live %}{{ tag("Live", "green") }}{% elif l.status == "published" %}{{ tag("Awaiting approval", "yellow") }}{% else %}{{ tag("Draft") }}{% endif %}</td>
             <td class="px-3 py-2.5">{% if l.stack %}{{ tag(l.stack, "blue") }}{% endif %}</td>
             <td class="px-3 py-2.5 text-right tabular-nums">{{ l.price_per_hour|money }}</td>
@@ -80,19 +80,19 @@
       </table>
     </div>
     {% else %}
-    <p class="py-6 text-sm text-slate-400">No listings yet in this browser. <a href="/owner/new" class="text-[#2383e2] hover:underline">List your first repo</a></p>
+    <p class="py-6 text-sm text-stone-400">No listings yet in this browser. <a href="/owner/new" class="text-brand-600 hover:underline">List your first repo</a></p>
     {% endif %}
 
     {# sessions database #}
     <h2 class="mt-12 flex items-center gap-2 text-xl font-semibold tracking-tight"><span>⚡</span> Sessions</h2>
     <div class="mt-2 flex gap-4 border-b border-black/[.08] text-sm">
-      <span class="-mb-px border-b-2 border-slate-900 pb-2 font-medium">▦ Table</span>
-      <span class="pb-2 text-slate-400">latest {{ sessions|length }}</span>
+      <span class="-mb-px border-b-2 border-stone-900 pb-2 font-medium">▦ Table</span>
+      <span class="pb-2 text-stone-400">latest {{ sessions|length }}</span>
     </div>
     {% if sessions %}
     <div class="overflow-x-auto">
       <table class="w-full min-w-[680px] text-left text-sm">
-        <thead class="text-slate-500">
+        <thead class="text-stone-500">
           <tr class="border-b border-black/[.08]">
             <th class="whitespace-nowrap py-2 pr-3 font-normal">◷ When (UTC)</th><th class="whitespace-nowrap px-3 py-2 font-normal">Aa Listing</th><th class="whitespace-nowrap px-3 py-2 font-normal">◎ Status</th>
             <th class="whitespace-nowrap px-3 py-2 text-right font-normal"># Paid</th><th class="whitespace-nowrap py-2 pl-3 font-normal">◎ Your payout</th>
@@ -102,9 +102,9 @@
           {% for s in sessions %}
           {% set p = payouts.get(s.id) %}
           <tr class="border-b border-black/[.06] hover:bg-black/[.02]">
-            <td class="py-2.5 pr-3 font-mono text-xs text-slate-500">{{ s.created_at.strftime("%b %d, %H:%M") }}</td>
+            <td class="py-2.5 pr-3 font-mono text-xs text-stone-500">{{ s.created_at.strftime("%b %d, %H:%M") }}</td>
             <td class="px-3 py-2.5"><a href="/s/{{ s.id }}" class="underline decoration-black/15 underline-offset-4 hover:decoration-black/50">{{ s.listing.title }}</a>
-              <span class="ml-1 text-xs text-slate-400">{{ s.hours }}h</span>{% if (s.deploy_attempts or 0) > 1 %} {{ tag("AI-healed", "purple") }}{% endif %}</td>
+              <span class="ml-1 text-xs text-stone-400">{{ s.hours }}h</span>{% if (s.deploy_attempts or 0) > 1 %} {{ tag("AI-healed", "purple") }}{% endif %}</td>
             <td class="px-3 py-2.5">
               {% if s.status == "live" %}{{ tag("Live", "green") }}{% elif s.status == "expired" %}{{ tag("Ended") }}{% elif s.status == "failed_refunded" %}{{ tag("Refunded", "red") }}{% else %}{{ tag(s.status|replace("_", " ")|capitalize, "blue") }}{% endif %}
             </td>
@@ -113,8 +113,8 @@
               {% if p and p.status == "SUCCESS" %}{{ tag(p.net_amount|money ~ " paid", "green") }}
               {% elif p and p.error %}{{ tag("Retrying", "red") }}
               {% elif p %}{{ tag(p.net_amount|money ~ " " ~ p.status|lower, "yellow") }}
-              {% elif s.status == "failed_refunded" %}<span class="text-xs text-slate-400">none (buyer refunded)</span>
-              {% else %}<span class="text-xs text-slate-400">after the session ends</span>{% endif %}
+              {% elif s.status == "failed_refunded" %}<span class="text-xs text-stone-400">none (buyer refunded)</span>
+              {% else %}<span class="text-xs text-stone-400">after the session ends</span>{% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -122,7 +122,7 @@
       </table>
     </div>
     {% else %}
-    <p class="py-6 text-sm text-slate-400">No paid sessions yet. Share your listing link to get your first buyer.</p>
+    <p class="py-6 text-sm text-stone-400">No paid sessions yet. Share your listing link to get your first buyer.</p>
     {% endif %}
   </div>
 </div>

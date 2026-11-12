@@ -5,7 +5,7 @@
   {% if errors.get(name) %}<p class="mt-1.5 text-xs font-medium text-rose-600">{{ errors[name] }}</p>{% endif %}
 {%- endmacro %}
 
-{% set input_cls = "w-full rounded-xl border-0 bg-slate-50 px-3.5 py-2.5 text-sm ring-1 ring-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+{% set input_cls = "w-full rounded-xl border-0 bg-stone-50 px-3.5 py-2.5 text-sm ring-1 ring-stone-200 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none" %}
 {% set mono_cls = input_cls ~ " font-mono text-[13px]" %}
 
 {% block content %}
@@ -15,8 +15,8 @@
   {% include "partials/onboarding_progress.html" %}
   <div class="mx-auto mt-10 max-w-6xl">
     <div class="rise flex items-end gap-4" style="--d: 50ms">
-      <span class="btn-brand grid h-14 w-14 shrink-0 place-items-center rounded-[1.2rem] font-bold text-white shadow-lg shadow-indigo-500/30">AI</span>
-      <div class="relative max-w-2xl rounded-2xl border-2 border-black/[.08] bg-white px-5 py-3.5 text-[15px] leading-relaxed text-slate-700 shadow-sm">
+      <span class="btn-brand grid h-14 w-14 shrink-0 place-items-center rounded-[1.2rem] font-bold text-white shadow-lg shadow-brand-500/30">AI</span>
+      <div class="relative max-w-2xl rounded-2xl border-2 border-black/[.08] bg-white px-5 py-3.5 text-[15px] leading-relaxed text-stone-700 shadow-sm">
         <span class="absolute -left-2 bottom-5 h-4 w-4 rotate-45 border-b-2 border-l-2 border-black/[.08] bg-white"></span>
         {% if listing.is_live %}You're live! Buyers can rent this now. Change anything below and hit save.
         {% elif conf_pct >= 80 %}I'm <b class="text-emerald-600">{{ conf_pct }}% sure</b> this deploys as is.{% if analysis.get("adjustments") %} I also made it bind Render's port.{% endif %} Set your price and publish!
@@ -26,7 +26,7 @@
     <div class="rise mt-8 flex flex-wrap items-end justify-between gap-4" style="--d: 150ms">
       <div class="min-w-0">
         <h1 class="text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">{{ listing.title }}</h1>
-        <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="ul-link mt-2 inline-block font-mono text-sm text-slate-500 hover:text-slate-900">{{ listing.repo_full_name }}{% if listing.branch %} · {{ listing.branch }}{% endif %} ↗</a>
+        <a href="{{ listing.repo_url }}" target="_blank" rel="noopener" class="ul-link mt-2 inline-block font-mono text-sm text-stone-500 hover:text-stone-900">{{ listing.repo_full_name }}{% if listing.branch %} · {{ listing.branch }}{% endif %} ↗</a>
       </div>
       <div class="flex items-center gap-2">
         {% if listing.is_live %}
@@ -34,10 +34,10 @@
         {% elif listing.status == "published" %}
         <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Awaiting approval</span>
         {% else %}
-        <span class="rounded-full bg-slate-200/70 px-3 py-1 text-xs font-bold text-slate-600">Draft</span>
+        <span class="rounded-full bg-stone-200/70 px-3 py-1 text-xs font-bold text-stone-600">Draft</span>
         {% endif %}
         {% if listing.status == "published" %}
-        <a href="/l/{{ listing.slug }}" class="chunky rounded-xl border-black/20 bg-white px-3 py-1.5 text-sm font-semibold text-slate-800">View listing →</a>
+        <a href="/l/{{ listing.slug }}" class="chunky rounded-xl border-black/20 bg-white px-3 py-1.5 text-sm font-semibold text-stone-800">View listing →</a>
         {% endif %}
       </div>
     </div>
@@ -55,7 +55,7 @@
   <div class="grid gap-6 lg:grid-cols-5">
     {# ---------------------------------------------------------------- AI analysis #}
     <aside class="lg:col-span-2">
-      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+      <div class="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
         <div class="flex items-center gap-2">
           <span class="btn-brand grid h-8 w-8 place-items-center rounded-lg text-[11px] font-bold text-white">AI</span>
           <h2 class="font-semibold">What the AI found</h2>
@@ -64,31 +64,31 @@
         {% set conf = (listing.confidence or 0) %}
         <div class="mt-5">
           <div class="flex items-baseline justify-between text-sm">
-            <span class="text-slate-500">Confidence it will deploy</span>
+            <span class="text-stone-500">Confidence it will deploy</span>
             <span class="font-semibold">{{ (conf * 100)|round|int }}%</span>
           </div>
-          <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
+          <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-stone-100">
             <div class="h-full rounded-full {% if conf >= 0.8 %}bg-emerald-500{% elif conf >= 0.5 %}bg-amber-400{% else %}bg-rose-500{% endif %}" style="width: {{ (conf * 100)|round|int }}%"></div>
           </div>
         </div>
 
         <dl class="mt-5 grid grid-cols-2 gap-3 text-sm">
-          <div class="rounded-xl bg-slate-50 p-3"><dt class="text-xs text-slate-500">Stack</dt><dd class="mt-0.5 font-medium">{{ result.get("stack") or "—" }}</dd></div>
-          <div class="rounded-xl bg-slate-50 p-3"><dt class="text-xs text-slate-500">Runtime</dt><dd class="mt-0.5 font-medium">{{ result.get("runtime") or "—" }}</dd></div>
+          <div class="rounded-xl bg-stone-50 p-3"><dt class="text-xs text-stone-500">Stack</dt><dd class="mt-0.5 font-medium">{{ result.get("stack") or "—" }}</dd></div>
+          <div class="rounded-xl bg-stone-50 p-3"><dt class="text-xs text-stone-500">Runtime</dt><dd class="mt-0.5 font-medium">{{ result.get("runtime") or "—" }}</dd></div>
         </dl>
 
         {% if result.get("port_notes") %}
         <div class="mt-5">
-          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Port</h3>
-          <p class="mt-1 text-sm leading-relaxed text-slate-700">{{ result["port_notes"] }}</p>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500">Port</h3>
+          <p class="mt-1 text-sm leading-relaxed text-stone-700">{{ result["port_notes"] }}</p>
         </div>
         {% endif %}
 
         {% if analysis.get("adjustments") %}
         <div class="mt-5">
-          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Safety fixes applied</h3>
-          <ul class="mt-1.5 space-y-1 text-sm text-slate-700">
-            {% for a in analysis["adjustments"] %}<li class="flex gap-2"><span class="text-indigo-500">✓</span>{{ a }}</li>{% endfor %}
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500">Safety fixes applied</h3>
+          <ul class="mt-1.5 space-y-1 text-sm text-stone-700">
+            {% for a in analysis["adjustments"] %}<li class="flex gap-2"><span class="text-brand-500">✓</span>{{ a }}</li>{% endfor %}
           </ul>
         </div>
         {% endif %}
@@ -104,12 +104,12 @@
 
         {% if analysis.get("healed_config") %}
         {% set healed = analysis["healed_config"] %}
-        <div class="mt-5 rounded-xl bg-indigo-50 p-3 ring-1 ring-indigo-100">
-          <h3 class="text-xs font-semibold uppercase tracking-wide text-indigo-800">AI fixed a live deploy</h3>
-          <p class="mt-1 text-sm text-indigo-900">A buyer's deploy failed and the AI fixed it with these changes. Copy them into the deploy plan so the next buyer goes live first time:</p>
+        <div class="mt-5 rounded-xl bg-brand-50 p-3 ring-1 ring-brand-100">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-brand-800">AI fixed a live deploy</h3>
+          <p class="mt-1 text-sm text-brand-900">A buyer's deploy failed and the AI fixed it with these changes. Copy them into the deploy plan so the next buyer goes live first time:</p>
           <ul class="mt-2 space-y-1.5">
             {% for c in healed.get("changes", []) %}
-            <li class="text-xs"><span class="font-semibold text-indigo-900">{{ c.field }}:</span> <code class="break-all text-emerald-800">{{ c.new }}</code></li>
+            <li class="text-xs"><span class="font-semibold text-brand-900">{{ c.field }}:</span> <code class="break-all text-emerald-800">{{ c.new }}</code></li>
             {% endfor %}
           </ul>
         </div>
@@ -117,19 +117,19 @@
 
         {% if analysis.get("files_read") %}
         <div class="mt-5">
-          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Files it read</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500">Files it read</h3>
           <div class="mt-1.5 flex flex-wrap gap-1.5">
-            {% for f in analysis["files_read"] %}<code class="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700">{{ f }}</code>{% endfor %}
+            {% for f in analysis["files_read"] %}<code class="rounded-md bg-stone-100 px-1.5 py-0.5 text-xs text-stone-700">{{ f }}</code>{% endfor %}
           </div>
         </div>
         {% endif %}
-        <p class="mt-5 text-xs text-slate-400">Model: {{ analysis.get("model", "unknown") }}</p>
+        <p class="mt-5 text-xs text-stone-400">Model: {{ analysis.get("model", "unknown") }}</p>
       </div>
     </aside>
 
     {# ---------------------------------------------------------------- Editable form #}
     <form method="post" action="/owner/listings/{{ listing.id }}" class="space-y-6 lg:col-span-3">
-      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+      <div class="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm">
         <h2 class="font-semibold">Listing</h2>
         <div class="mt-4 space-y-4">
           <div>
@@ -138,7 +138,7 @@
             {{ field_error("title") }}
           </div>
           <div>
-            <label class="text-sm font-medium" for="summary">Summary <span class="font-normal text-slate-500">(AI-written; buyers see this)</span></label>
+            <label class="text-sm font-medium" for="summary">Summary <span class="font-normal text-stone-500">(AI-written; buyers see this)</span></label>
             <textarea id="summary" name="summary" rows="4" maxlength="1200" class="mt-1.5 {{ input_cls }}">{{ v.summary }}</textarea>
             {{ field_error("summary") }}
           </div>
@@ -146,14 +146,14 @@
             <div>
               <label class="text-sm font-medium" for="price_per_hour">Price per hour (USD)</label>
               <div class="relative mt-1.5">
-                <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm text-slate-500">$</span>
+                <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm text-stone-500">$</span>
                 <input id="price_per_hour" name="price_per_hour" value="{{ v.price_per_hour }}" inputmode="decimal" class="{{ input_cls }} pl-7">
               </div>
               {{ field_error("price_per_hour") }}
-              <p class="mt-1.5 text-xs text-slate-500">Buyers rent up to {{ max_hours }} hours. You get 80% after each session.</p>
+              <p class="mt-1.5 text-xs text-stone-500">Buyers rent up to {{ max_hours }} hours. You get 80% after each session.</p>
             </div>
             <div>
-              <label class="text-sm font-medium" for="owner_name">Your name <span class="font-normal text-slate-500">(optional)</span></label>
+              <label class="text-sm font-medium" for="owner_name">Your name <span class="font-normal text-stone-500">(optional)</span></label>
               <input id="owner_name" name="owner_name" value="{{ v.owner_name }}" maxlength="120" class="mt-1.5 {{ input_cls }}">
             </div>
           </div>
@@ -165,10 +165,10 @@
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+      <div class="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm">
         <div class="flex items-center justify-between">
           <h2 class="font-semibold">Deploy plan</h2>
-          <span class="text-xs text-slate-500">Render free instance · binds <code class="rounded bg-slate-100 px-1">$PORT</code></span>
+          <span class="text-xs text-stone-500">Render free instance · binds <code class="rounded bg-stone-100 px-1">$PORT</code></span>
         </div>
         <div class="mt-4 space-y-4">
           <div class="grid gap-4 sm:grid-cols-3">
@@ -193,39 +193,39 @@
             <label class="text-sm font-medium" for="start_command">Start command</label>
             <input id="start_command" name="start_command" value="{{ v.start_command }}" class="mt-1.5 {{ mono_cls }}">
             {{ field_error("commands") }}
-            <p class="mt-1.5 text-xs text-slate-500">If a deploy fails anyway, AI reads the logs, fixes this config and retries.</p>
+            <p class="mt-1.5 text-xs text-stone-500">If a deploy fails anyway, AI reads the logs, fixes this config and retries.</p>
           </div>
 
           <div>
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium">Environment variables</span>
-              <button type="button" id="add-env" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">+ Add variable</button>
+              <button type="button" id="add-env" class="text-sm font-medium text-brand-600 hover:text-brand-500">+ Add variable</button>
             </div>
-            <p class="mt-0.5 text-xs text-slate-500">Demo-safe values only. They're passed to every preview, never shown to buyers.</p>
+            <p class="mt-0.5 text-xs text-stone-500">Demo-safe values only. They're passed to every preview, never shown to buyers.</p>
             <div id="env-rows" class="mt-2 space-y-2">
               {% for name, value in v.env %}
               <div class="env-row flex gap-2">
                 <input name="env_names" value="{{ name }}" placeholder="NAME" class="w-2/5 {{ mono_cls }}">
                 <input name="env_values" value="{{ value }}" placeholder="value" class="min-w-0 flex-1 {{ mono_cls }}">
-                {% if name in required_env %}<span class="self-center rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700">required</span>{% endif %}
-                <button type="button" class="remove-env px-2 text-slate-400 hover:text-rose-600" aria-label="Remove">✕</button>
+                {% if name in required_env %}<span class="self-center rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">required</span>{% endif %}
+                <button type="button" class="remove-env px-2 text-stone-400 hover:text-rose-600" aria-label="Remove">✕</button>
               </div>
               {% endfor %}
             </div>
-            {% if not v.env %}<p id="env-empty" class="mt-2 text-sm text-slate-500">The AI found no env vars this app needs.</p>{% endif %}
+            {% if not v.env %}<p id="env-empty" class="mt-2 text-sm text-stone-500">The AI found no env vars this app needs.</p>{% endif %}
             {{ field_error("env") }}
             <template id="env-template">
               <div class="env-row flex gap-2">
                 <input name="env_names" placeholder="NAME" class="w-2/5 {{ mono_cls }}">
                 <input name="env_values" placeholder="value" class="min-w-0 flex-1 {{ mono_cls }}">
-                <button type="button" class="remove-env px-2 text-slate-400 hover:text-rose-600" aria-label="Remove">✕</button>
+                <button type="button" class="remove-env px-2 text-stone-400 hover:text-rose-600" aria-label="Remove">✕</button>
               </div>
             </template>
           </div>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+      <div class="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm">
         {% if allowlisted %}
         <p class="flex items-center gap-2 text-sm text-emerald-700"><span class="grid h-5 w-5 place-items-center rounded-full bg-emerald-500 text-xs text-white">✓</span>This repo is on the allowlist: it goes live as soon as you publish.</p>
         {% else %}
@@ -233,11 +233,11 @@
         {% endif %}
         <div class="mt-4 flex flex-wrap gap-3">
           {% if listing.status == "published" %}
-          <button name="action" value="publish" class="chunky rounded-2xl border-indigo-800 bg-indigo-600 px-7 py-3 text-sm font-bold uppercase tracking-wider text-white">Save changes</button>
-          <button name="action" value="unpublish" class="chunky rounded-2xl border-2 border-black/15 bg-white px-6 py-3 text-sm font-bold uppercase tracking-wider text-slate-600">Unpublish</button>
+          <button name="action" value="publish" class="chunky rounded-2xl border-brand-800 bg-brand-600 px-7 py-3 text-sm font-bold uppercase tracking-wider text-white">Save changes</button>
+          <button name="action" value="unpublish" class="chunky rounded-2xl border-2 border-black/15 bg-white px-6 py-3 text-sm font-bold uppercase tracking-wider text-stone-600">Unpublish</button>
           {% else %}
           <button name="action" value="publish" class="chunky rounded-2xl border-emerald-700 bg-emerald-500 px-7 py-3 text-sm font-bold uppercase tracking-wider text-white">Publish</button>
-          <button name="action" value="save" class="chunky rounded-2xl border-2 border-black/15 bg-white px-6 py-3 text-sm font-bold uppercase tracking-wider text-slate-600">Save draft</button>
+          <button name="action" value="save" class="chunky rounded-2xl border-2 border-black/15 bg-white px-6 py-3 text-sm font-bold uppercase tracking-wider text-stone-600">Save draft</button>
           {% endif %}
         </div>
       </div>
