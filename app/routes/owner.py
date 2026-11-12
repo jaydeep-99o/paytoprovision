@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.analyzer import analyze_repo
 from app.ai.llm import LLMClient, LLMError
+from app.budget import BudgetExceeded
 from app.config import get_settings
 from app.db import DbSession
 from app.github_client import GitHubClient, GitHubError, parse_repo_url
@@ -137,6 +138,8 @@ def analyze(
         result = analyze_repo(ref.url + (f"/tree/{ref.branch}" if ref.branch else ""), github=github, llm=llm)
     except GitHubError as exc:
         return fail(str(exc))
+    except BudgetExceeded:
+        return fail("This demo's AI budget for today is used up. Try again tomorrow, or browse the live demos.")
     except LLMError:
         log.exception("analysis failed for %s", ref.full_name)
         return fail("The AI couldn't analyze this repo right now. Please try again.")

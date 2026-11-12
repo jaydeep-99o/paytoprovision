@@ -12,6 +12,7 @@ import json
 import logging
 import re
 import time
+from collections.abc import Callable
 from typing import Any, TypeVar
 
 import httpx
@@ -67,11 +68,13 @@ class LLMClient:
         timeout: float = 120.0,
         max_retries: int = 2,
         transport: httpx.BaseTransport | None = None,
+        on_call: Callable[[], None] | None = None,
     ):
         if not api_key:
             raise LLMError("NEBIUS_API_KEY is not set")
         self.model = model
         self.max_retries = max_retries
+        self._on_call = on_call  # e.g. budget.take; raises to refuse the call
         self._http = httpx.Client(
             base_url=base_url,
             timeout=timeout,
@@ -81,7 +84,10 @@ class LLMClient:
 
     @classmethod
     def from_settings(cls, settings: Settings | None = None, **kwargs: Any) -> "LLMClient":
+        from app import budget
+
         s = settings or get_settings()
+        kwargs.setdefault("on_call", lambda: budget.take(budget.AI))
         return cls(s.nebius_api_key.get_secret_value(), model=s.nebius_model, base_url=s.nebius_base_url, **kwargs)
 
     def __repr__(self) -> str:
@@ -107,6 +113,8 @@ class LLMClient:
         temperature: float = 0.2,
     ) -> dict[str, Any]:
         """One chat completion. Returns the assistant message dict (content, tool_calls, ...)."""
+        if self._on_call:
+            self._on_call()
         body: dict[str, Any] = {
             "model": self.model,
             "messages": messages,

@@ -173,6 +173,16 @@ class WebhookEvent(Base):
     received_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
 
 
+class UsageCounter(Base):
+    """Per-day usage of a paid resource (see app/budget.py)."""
+
+    __tablename__ = "usage_counters"
+
+    day: Mapped[str] = mapped_column(String(10), primary_key=True)  # YYYY-MM-DD (UTC)
+    kind: Mapped[str] = mapped_column(String(20), primary_key=True)  # "ai" | "deploy"
+    count: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class Payout(TimestampMixin, Base):
     __tablename__ = "payouts"
 

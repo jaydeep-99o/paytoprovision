@@ -13,6 +13,7 @@ from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app import budget
 from app.config import get_settings
 from app.models import ACTIVE_SESSION_STATUSES, Listing, PreviewSession, SessionStatus
 from app.payments.paypal import PayPalClient, PayPalError, capture_details
@@ -60,6 +61,12 @@ def begin_session(db: Session, listing: Listing, hours: int) -> PreviewSession:
     if not 1 <= hours <= settings.max_session_hours:
         raise CheckoutError(f"Choose between 1 and {settings.max_session_hours} hours.")
     _check_capacity(db)
+    if budget.remaining(budget.DEPLOY) <= 0:
+        raise CheckoutError(
+            "Today's demo capacity is used up. Try again tomorrow. You have not been charged.",
+            status_code=409,
+            issue="DAILY_LIMIT",
+        )
     session = PreviewSession(
         listing=listing,
         hours=hours,

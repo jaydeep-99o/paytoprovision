@@ -14,6 +14,7 @@ from app.config import get_settings
 from app.db import DbSession
 from app.models import Listing, PreviewSession, SessionStatus
 from app.payments.paypal import PayPalClient
+from app.ratelimit import RateLimiter
 from app.routes.deps import get_paypal, get_provision_submitter
 from app.templating import templates
 
@@ -40,8 +41,14 @@ def _require_paypal(paypal: PayPalClient | None) -> PayPalClient:
     return paypal
 
 
+# Best-effort per-visitor limit on opening PayPal orders (the hard caps live in app/budget.py).
+order_limiter = RateLimiter(limit=12, window_seconds=600)
+
+
 @router.post("/api/checkout/{slug}/orders")
-def create_order(slug: str, body: OrderRequest, db: DbSession, paypal: PayPal):
+def create_order(slug: str, body: OrderRequest, request: Request, db: DbSession, paypal: PayPal):
+    if not order_limiter.allow(request.client.host if request.client else "unknown"):
+        return JSONResponse({"error": "Too many checkouts in a short time. Wait a few minutes."}, status_code=429)
     listing = db.scalar(select(Listing).where(Listing.slug == slug))
     if listing is None:
         raise HTTPException(404, "Listing not found")

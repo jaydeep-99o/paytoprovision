@@ -19,6 +19,16 @@ reaper.AUTO_ENABLED = False
 
 
 @pytest.fixture(autouse=True)
+def budgets_use_test_db(db_session_factory, monkeypatch):
+    """Daily budgets read and write the test database, with generous limits."""
+    from app import budget
+
+    monkeypatch.setattr(budget, "_session_factory", db_session_factory)
+    monkeypatch.setattr(get_settings(), "ai_daily_call_limit", 1000)
+    monkeypatch.setattr(get_settings(), "deploy_daily_limit", 1000)
+
+
+@pytest.fixture(autouse=True)
 def no_real_ai(monkeypatch):
     """Tests that don't pass an llm_factory get "AI not configured", never the real Nebius API."""
     from app import provisioner
@@ -76,6 +86,9 @@ def client(db_session_factory, paypal_fake, submitted, monkeypatch):
     monkeypatch.setattr(settings, "max_concurrent_previews", 3)
     monkeypatch.setattr(settings, "preview_name_prefix", "ptp-")
     owner.analyze_limiter.reset()
+    from app.routes import checkout as checkout_routes
+
+    checkout_routes.order_limiter.reset()
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

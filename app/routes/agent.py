@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from app.ai.agent import CheckoutAgent
 from app.ai.llm import LLMClient, LLMError
+from app.budget import BudgetExceeded
 from app.db import DbSession
 from app.models import Listing
 from app.ratelimit import RateLimiter
@@ -53,6 +54,10 @@ def chat(
     agent = CheckoutAgent(db, listing, llm, toolkit)
     try:
         result = agent.respond([m.model_dump() for m in body.messages], order_id=body.order_id)
+    except BudgetExceeded:
+        return JSONResponse(
+            {"error": "The checkout agent reached today's demo limit. You can still pay with the PayPal button."}, 429
+        )
     except LLMError:
         log.exception("checkout agent failed")
         return JSONResponse({"error": "The agent had a hiccup. Try again, or use the PayPal button."}, 502)

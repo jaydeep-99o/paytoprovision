@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     max_concurrent_previews: int = 3
     max_session_hours: int = 2
     max_heal_attempts: int = 2
+    # Global daily caps that protect paid resources from abuse (0 = unlimited).
+    ai_daily_call_limit: int = 400  # Nebius chat calls across analyzer, agent and healer
+    deploy_daily_limit: int = 40  # Render deploys (builds), including AI-healing redeploys
 
     @property
     def is_production(self) -> bool:

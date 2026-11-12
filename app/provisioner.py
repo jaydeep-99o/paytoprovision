@@ -22,8 +22,10 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
+from app import budget
 from app.ai.healer import check_fix, propose_fix
 from app.ai.llm import LLMClient, LLMError
+from app.budget import BudgetExceeded
 from app.config import get_settings
 from app.db import SessionLocal
 from app.models import PreviewSession, SessionStatus
@@ -144,6 +146,10 @@ def run_provisioning(
                 if deploy is None:
                     fail_and_refund(db, s, s.failure_reason or "The deploy failed.", render, paypal_factory)
                     return
+        except BudgetExceeded:
+            fail_and_refund(
+                db, s, "Today's demo capacity was used up before your deploy started.", render, paypal_factory
+            )
         except (RenderAPIError, TimeoutError) as exc:
             log.warning("provisioning error for %s: %s", session_id, exc)
             fail_and_refund(db, s, f"Render couldn't deploy the app: {exc}", render, paypal_factory)
@@ -225,6 +231,11 @@ def heal_once(
                 max_attempts=1 + get_settings().max_heal_attempts,
                 previous_fixes=[e.message for e in s.events if e.kind == "ai_fix"],
             )
+    except BudgetExceeded:
+        s.add_event("ai_gave_up", "The AI repair budget for today is used up.")
+        s.failure_reason = "The deploy failed and today's AI repair budget is used up."
+        db.commit()
+        return None
     except LLMError as exc:
         log.warning("healer LLM call failed for %s: %s", s.id, exc)
         s.add_event("ai_gave_up", "The AI repair service didn't respond.")
@@ -247,6 +258,13 @@ def heal_once(
         db.commit()
         return None
 
+    try:
+        budget.take(budget.DEPLOY)
+    except BudgetExceeded:
+        s.add_event("ai_gave_up", "Today's deploy budget is used up, so the fix can't be tried.")
+        s.failure_reason = f"{plan.root_cause} Today's deploy budget ran out before the fix could be tried."
+        db.commit()
+        return None
     new = fix.config
     native_changes = {k: new[k] for k in ("build_command", "start_command", "health_path") if new[k] != current.get(k)}
     if native_changes:
@@ -274,6 +292,7 @@ def heal_once(
 
 
 def _create_service(db: Session, s: PreviewSession, render: RenderClient) -> None:
+    budget.take(budget.DEPLOY)
     listing = s.listing
     cfg = dict(listing.deploy_config or {})
     s.active_config = cfg

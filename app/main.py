@@ -52,6 +52,14 @@ async def owner_cookie(request: Request, call_next):
             samesite="lax",
             secure=settings.is_production,
         )
+    # Baseline security headers: no framing (clickjacking), no MIME sniffing, HTTPS only in production.
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Content-Security-Policy", "frame-ancestors 'none'")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    if settings.is_production:
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
     # Piggyback the (throttled) reaper on real traffic; health checks and the cron endpoint don't count.
     if not request.url.path.startswith(("/healthz", "/internal", "/webhooks")):
         reaper.maybe_reap_in_background()
