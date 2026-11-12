@@ -146,9 +146,12 @@
       if (!e.detail.xhr.getResponseHeader("HX-Redirect")) buddy.textContent = "Hmm, that didn't work. Check the link and try again?";
     });
     document.querySelectorAll(".repo-pick").forEach((b) => b.addEventListener("click", () => {
-      document.getElementById("repo_url").value = b.dataset.repo;
+      // The repo list lives outside the analyze form: submit the form that owns the URL box.
+      const input = document.getElementById("repo_url");
+      input.value = b.dataset.repo;
       buddy.textContent = "Great choice! Reading it now…";
-      b.closest("form").requestSubmit();
+      input.form.requestSubmit();
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
     }));
     const filter = document.getElementById("repo-filter");
     if (filter) filter.addEventListener("input", () => {
