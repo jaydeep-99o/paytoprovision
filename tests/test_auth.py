@@ -73,7 +73,9 @@ def test_no_open_redirects(bad):
 # ---------------------------------------------------------------- flow
 
 
-def test_login_hidden_and_disabled_without_oauth_app(client):
+def test_login_hidden_and_disabled_without_oauth_app(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "github_client_id", "")
+    monkeypatch.setattr(get_settings(), "github_client_secret", SecretStr(""))
     assert client.get("/auth/github/login", follow_redirects=False).status_code == 404
     assert "Sign in with GitHub" not in client.get("/owner/new", headers=HTML).text
 
